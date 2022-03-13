@@ -16,13 +16,11 @@ export class LoginComponent implements OnInit {
     password: [null, Validators.required]
   });
 
-  constructor(private formBuilder: FormBuilder, private authSvc: AuthenticationService, private router: Router, private snackBar: MatSnackBar) { }
+  constructor(private formBuilder: FormBuilder, private authSvc: AuthenticationService, private snackBar: MatSnackBar) { }
 
   async onSubmit(): Promise<void> {
     let success: boolean = await this.authSvc.login(this.loginForm.value.username, this.loginForm.value.password);
-    if(success)
-      this.router.navigate(['dashboard']); // Nice, send the user to the dashboard
-    else {
+    if(!success) {
       this.snackBar.open('Login failed.');
       this.loginForm.reset();
     }

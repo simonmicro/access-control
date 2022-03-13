@@ -7,7 +7,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent, canActivate: [ AuthenticationGuard ] },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [ AuthenticationGuard ] }
+  { path: 'dashboard', component: DashboardComponent, canActivate: [ AuthenticationGuard ] },
+  { path: '**', component: LoginComponent, canActivate: [ AuthenticationGuard ] } // TODO replace with 404
 ];
 
 @NgModule({

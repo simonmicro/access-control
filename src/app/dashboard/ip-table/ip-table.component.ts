@@ -42,7 +42,6 @@ export class IpTableComponent implements OnInit, OnChanges, AfterViewInit {
   }
   
   ngAfterViewInit() {
-    console.log(this.paginator);
     this.ngOnChanges(); // To also inform the table to render initially
   }
 }

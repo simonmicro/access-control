@@ -11,6 +11,7 @@ import { MatSnackBarModule, MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/mater
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -18,13 +19,17 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LoginComponent } from './login/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { IpTableComponent } from './dashboard/ip-table/ip-table.component';
+import { HideProdDirective } from './hide-prod.directive';
+import { DebugMenuComponent } from './debug-menu/debug-menu.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     DashboardComponent,
-    IpTableComponent
+    IpTableComponent,
+    HideProdDirective,
+    DebugMenuComponent
   ],
   imports: [
     FormsModule,
@@ -40,7 +45,8 @@ import { IpTableComponent } from './dashboard/ip-table/ip-table.component';
     MatSnackBarModule,
     MatToolbarModule,
     MatTableModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatMenuModule
   ],
   providers: [
     {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 2500, horizontalPosition: 'left'}}

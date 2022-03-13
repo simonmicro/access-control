@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { AuthenticationService } from '../authentication.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { IPTableRow } from './ip-table/ip-table.component'
+import { Subscription } from 'rxjs';
+import { APIUser } from '../api.service';
 
 const a: IPTableRow[] = [
   {name: 'str0', ip: '1.1.1.1', added: new Date(), expires: new Date()},
@@ -23,20 +25,29 @@ const b: IPTableRow[] = [
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  title?: string;;
+  private userSubscription?: Subscription;
+  title?: string;
   a: IPTableRow[] = a;
   b: IPTableRow[] = b;
 
-  constructor(private authSvc: AuthenticationService, private router: Router, private snackBar: MatSnackBar) { }
+  constructor(private authSvc: AuthenticationService, private snackBar: MatSnackBar) { }
 
-  ngOnInit(): void { 
-    //this.title = 'Damn.';
-    // TODO Observable pattern!
+  async ngOnInit(): Promise<void> { 
+    this.userSubscription = this.authSvc.subscribeUser(u => { if(u) this.userUpdate(u); });
+    let u: APIUser | null = await this.authSvc.getUser();
+    if(u) this.userUpdate(u);
+  }
+
+  ngOnDestroy(): void {
+    this.userSubscription!.unsubscribe();
+  }
+
+  private userUpdate(u: APIUser) {
+    this.title = 'Welcome, ' + u.name;
   }
 
   async logout(): Promise<void> {
     await this.authSvc.logout();
-    this.router.navigate(['login']);
   }
 
   startStuff() {
