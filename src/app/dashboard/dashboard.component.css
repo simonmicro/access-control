@@ -1,0 +1,16 @@
+:host > mat-toolbar {
+    display: flex;
+    justify-content: space-between;
+}
+
+:host > button {
+    position: sticky;
+    left: unset;
+    bottom: 2em;
+    right: 2em;
+    float: right;
+}
+
+:host > div {
+    margin: 1em;
+}

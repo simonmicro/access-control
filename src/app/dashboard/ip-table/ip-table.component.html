@@ -1,0 +1,40 @@
+<table mat-table [dataSource]="dataSource!" [ngClass]="{'read-only': ro}">
+    <ng-container matColumnDef="position">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let element">{{element.name}}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>IPv4</th>
+        <td mat-cell *matCellDef="let element"><pre>{{element.ip}}</pre></td>
+    </ng-container>
+
+    <ng-container matColumnDef="weight">
+        <th mat-header-cell *matHeaderCellDef>Added at</th>
+        <td mat-cell *matCellDef="let element">{{moment(element.added).format('YYYY-MM-DD HH:mm')}}, {{moment(element.added).fromNow()}}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="symbol">
+        <th mat-header-cell *matHeaderCellDef>Expires on</th>
+        <td mat-cell *matCellDef="let element">{{moment(element.expires).format('YYYY-MM-DD HH:mm')}}, {{moment(element.expires).fromNow()}}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef>
+            <span [ngClass]="{'hidden': ro}">Action</span>
+        </th>
+        <td mat-cell *matCellDef="let element">
+            <button [ngClass]="{'hidden': ro}" mat-icon-button color="warn"><mat-icon>delete</mat-icon></button>
+        </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
+
+<div [ngClass]="{'hidden': !paginate}">
+    <mat-paginator [pageSize]="pageSize"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        showFirstLastButtons>
+    </mat-paginator>
+</div>

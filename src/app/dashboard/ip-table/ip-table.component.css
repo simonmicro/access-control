@@ -1,0 +1,15 @@
+:host {
+    width: 100%;
+}
+
+:host > .mat-table {
+    width: 100%;
+}
+
+:host > .mat-table.read-only td {
+    color: grey;
+}
+
+:host div.hidden, span.hidden, button.hidden {
+    visibility: hidden;
+}

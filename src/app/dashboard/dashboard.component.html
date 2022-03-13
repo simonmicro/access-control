@@ -1,0 +1,18 @@
+<mat-toolbar color="primary">
+    <span>{{ title }}</span>
+    <button mat-icon-button (click)="logout()">
+        <mat-icon>logout</mat-icon>
+    </button>
+</mat-toolbar>
+
+<div>
+    <h3>Your IP Addresses</h3>
+    <app-ip-table [data]="a"></app-ip-table>
+
+    <h3>Global IP Addresses</h3>
+    <app-ip-table [data]="b" [ro]="true"></app-ip-table>
+</div>
+
+<button mat-fab (click)="startStuff()">
+    <mat-icon>add</mat-icon>
+</button>
