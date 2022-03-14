@@ -12,8 +12,9 @@ export class AuthenticationGuard implements CanActivate {
   constructor(private authSvc: AuthenticationService, private snackBar: MatSnackBar) { }
 
   async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
+    const hasAuth: boolean = await this.authSvc.isAuthenticated();
     const needsAuth: boolean = this.authSvc.needsPathAuthentication('/' + route.routeConfig!.path!);
-    const hasAuth: boolean = this.authSvc.isAuthenticated();
+//console.warn('GUARD!', 'need?', needsAuth, 'has?', hasAuth);
     if(hasAuth) {
       // User is authenticated...
       if(needsAuth) {
