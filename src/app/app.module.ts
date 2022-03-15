@@ -12,6 +12,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatChipsModule } from '@angular/material/chips';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -21,6 +23,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { IpTableComponent } from './dashboard/ip-table/ip-table.component';
 import { HideProdDirective } from './hide-prod.directive';
 import { DebugMenuComponent } from './debug-menu/debug-menu.component';
+import { Error404Component } from './error404/error404.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +32,8 @@ import { DebugMenuComponent } from './debug-menu/debug-menu.component';
     DashboardComponent,
     IpTableComponent,
     HideProdDirective,
-    DebugMenuComponent
+    DebugMenuComponent,
+    Error404Component
   ],
   imports: [
     FormsModule,
@@ -46,7 +50,9 @@ import { DebugMenuComponent } from './debug-menu/debug-menu.component';
     MatToolbarModule,
     MatTableModule,
     MatPaginatorModule,
-    MatMenuModule
+    MatMenuModule,
+    MatSlideToggleModule,
+    MatChipsModule
   ],
   providers: [
     {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 2500, horizontalPosition: 'left'}}
