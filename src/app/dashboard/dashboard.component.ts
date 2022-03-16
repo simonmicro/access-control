@@ -1,23 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { AuthenticationService } from '../authentication.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { IPTableRow } from './ip-table/ip-table.component'
 import { Subscription } from 'rxjs';
-import { APIUser } from '../api.service';
-
-const a: IPTableRow[] = [
-  {name: 'str0', ip: '1.1.1.1', added: new Date(), expires: new Date()},
-  {name: 'str1', ip: '1.1.1.1', added: new Date(), expires: new Date()},
-  {name: 'str2', ip: '1.1.1.1', added: new Date(), expires: new Date()},
-  {name: 'str3', ip: '1.1.1.1', added: new Date(), expires: new Date()},
-  {name: 'str4', ip: '1.1.1.1', added: new Date(), expires: new Date()},
-  {name: 'str5', ip: '1.1.1.1', added: new Date(), expires: new Date()},
-];
-const b: IPTableRow[] = [
-  {name: 'str', ip: '2.2.2.2', added: new Date(), expires: new Date()},
-  {name: 'str', ip: '2.2.2.2', added: new Date(), expires: new Date()},
-];
+import { APIUser, APIIP, APIService } from '../api.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,15 +12,20 @@ const b: IPTableRow[] = [
 export class DashboardComponent implements OnInit {
   private userSubscription?: Subscription;
   title?: string;
-  a: IPTableRow[] = a;
-  b: IPTableRow[] = b;
+  userIPs: APIIP[] = [];
+  globalIPs: APIIP[] = [];
+  Math = Math;
 
-  constructor(private authSvc: AuthenticationService, private snackBar: MatSnackBar) { }
+  constructor(private authSvc: AuthenticationService, private snackBar: MatSnackBar, private api: APIService) { }
 
-  async ngOnInit(): Promise<void> { 
+  async ngOnInit(): Promise<void> {
+    // Bind title to user information
     this.userSubscription = this.authSvc.subscribeUser(u => { if(u) this.userUpdate(u); });
     let u: APIUser | null = await this.authSvc.getUser();
     if(u) this.userUpdate(u);
+    // Fill component data
+    this.api.getIPs(false).then(l => this.userIPs = l);
+    this.api.getIPs(true).then(l => this.globalIPs = l);
   }
 
   ngOnDestroy(): void {
@@ -43,7 +33,7 @@ export class DashboardComponent implements OnInit {
   }
 
   private userUpdate(u: APIUser) {
-    this.title = 'Welcome, ' + u.name;
+    this.title = 'Welcome, ' + u.name + '!';
   }
 
   async logout(): Promise<void> {
@@ -51,8 +41,13 @@ export class DashboardComponent implements OnInit {
   }
 
   startStuff() {
-    this.a.push({name: 'str' + String(this.a.length), ip: '3.3.3.3', added: new Date(), expires: new Date()});
-    this.a = [...this.a]; // Trigger explicit change detection for Angular
-    this.snackBar.open('Shit.', String(this.a.length));
+    this.userIPs.push({id: Math.random(), name: 'str' + String(this.userIPs.length), ip: '3.3.3.3', added: new Date(), expires: new Date()});
+    this.userIPs = [...this.userIPs]; // Trigger explicit change detection for Angular
+    this.snackBar.open('Shit.', String(this.userIPs.length));
+  }
+
+  deleteIP(ip: APIIP) {
+    this.api.deleteIP(ip.id);
+    this.userIPs = this.userIPs.filter(v => { return v.id != ip.id; });
   }
 }

@@ -10,6 +10,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
+  year: number = (new Date()).getFullYear();
+  loading: boolean = false;
 
   loginForm: FormGroup = this.formBuilder.group({
     username: [null, Validators.required],
@@ -19,11 +21,13 @@ export class LoginComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private authSvc: AuthenticationService, private snackBar: MatSnackBar) { }
 
   async onSubmit(): Promise<void> {
+    this.loading = true;
     let success: boolean = await this.authSvc.login(this.loginForm.value.username, this.loginForm.value.password);
     if(!success) {
       this.snackBar.open('Login failed.');
       this.loginForm.reset();
     }
+    this.loading = false;
   }
 
   ngOnInit(): void {

@@ -1,23 +1,23 @@
-<div class="loginAlign">
-    <mat-card class="loginInner">
+<div>
+    <mat-card>
+        <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+        <h1 class="mat-display-2">Login</h1>
+        <p class="mat-subheading-2">Welcome to the Access Control System.</p>
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            <p>
-                <mat-form-field appearance="fill">
-                    <mat-label>Username</mat-label>
-                    <input id="username" matInput formControlName="username">
-                    <mat-icon matSuffix>person</mat-icon>
-                </mat-form-field>
-            </p>
-
-            <p>
-                <mat-form-field appearance="fill">
-                    <mat-label>Password</mat-label>
-                    <input id="password" type="password" matInput formControlName="password">
-                    <mat-icon matSuffix>key</mat-icon>
-                </mat-form-field>
-            </p>
-
+            <mat-form-field appearance="fill">
+                <mat-label>Username</mat-label>
+                <input id="username" matInput formControlName="username">
+                <mat-icon matSuffix>person</mat-icon>
+            </mat-form-field>
+            <br>
+            <mat-form-field appearance="fill">
+                <mat-label>Password</mat-label>
+                <input id="password" type="password" matInput formControlName="password">
+                <mat-icon matSuffix>key</mat-icon>
+            </mat-form-field>
+            <br>
             <button mat-flat-button color="primary" type="submit" [disabled]="!loginForm.valid">Login</button>
         </form>
     </mat-card>
+    <p class="mat-subheading-1">© Copyright {{ year }} simonmicro</p>
 </div>

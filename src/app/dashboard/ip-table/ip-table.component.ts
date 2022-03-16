@@ -1,14 +1,8 @@
-import { AfterViewInit, Component, ViewChild, Input, OnInit, OnChanges } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, Input, OnInit, OnChanges, Output, EventEmitter } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { APIIP } from '../../api.service';
 import * as moment from 'moment';
-
-export interface IPTableRow {
-  name: string;
-  ip: string;
-  added: Date;
-  expires: Date;
-}
 
 @Component({
   selector: 'app-ip-table',
@@ -18,13 +12,16 @@ export interface IPTableRow {
 export class IpTableComponent implements OnInit, OnChanges, AfterViewInit {
   moment = moment;
   @ViewChild(MatPaginator) paginator: any;
+  @ViewChild(MatTable) table: any;
 
-  @Input('ro') ro: boolean = false;
-  @Input('pageSize') pageSize: number = 10;
-  @Input('data') dd: IPTableRow[] = [];
+  @Input() ro: boolean = false;
+  @Input() pageSize: number = 10;
+  @Input() data: APIIP[] = [];
+
+  @Output() deleteEvents: EventEmitter<APIIP> = new EventEmitter<APIIP>();
 
   displayedColumns: string[] = ['position', 'name', 'weight', 'symbol', 'action'];
-  dataSource?: MatTableDataSource<IPTableRow>;
+  dataSource?: MatTableDataSource<APIIP>;
   paginate: boolean = false;
 
   constructor() { }
@@ -36,9 +33,10 @@ export class IpTableComponent implements OnInit, OnChanges, AfterViewInit {
   ngOnChanges(): void {
     //if(!this.ro && this.displayedColumns.indexOf('action') == -1)
     //  this.displayedColumns.push('action');
-    this.paginate = this.dd.length > this.pageSize;
-    this.dataSource = new MatTableDataSource<IPTableRow>(this.dd);
-    this.dataSource.paginator = this.paginator;
+    this.paginate = this.data.length > this.pageSize;
+    this.dataSource = new MatTableDataSource<APIIP>(this.data);
+    this.dataSource!.paginator = this.paginator;
+    console.log(this.ro);
   }
   
   ngAfterViewInit() {

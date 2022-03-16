@@ -1,21 +1,40 @@
-<mat-toolbar color="primary">
-    <span>{{ title }}</span>
-
-    <span>
-        <app-debug-menu></app-debug-menu>
-        <button mat-icon-button (click)="logout()"><mat-icon>logout</mat-icon></button>
-    </span>
-</mat-toolbar>
-
 <div>
-    <h3>Your IP Addresses</h3>
-    <app-ip-table [data]="a"></app-ip-table>
+    <mat-toolbar color="primary">
+        <span>{{ title }}</span>
+        <span>
+            <app-debug-menu></app-debug-menu>
+            <button mat-icon-button (click)="logout()">
+                <mat-icon>logout</mat-icon>
+            </button>
+        </span>
+    </mat-toolbar>
 
-    <h3>Global IP Addresses</h3>
-    <app-ip-table [data]="b" [ro]="true"></app-ip-table>
+    <div>
+        <mat-accordion>
+            <mat-expansion-panel [expanded]="true">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Your IP Addresses
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        Using {{ userIPs.length }} out of {{ Math.max(10, userIPs.length) }} IP addresses
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <app-ip-table [data]="userIPs" (deleteEvents)="deleteIP($event)"></app-ip-table>
+            </mat-expansion-panel>
+
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Global IP Addresses
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <app-ip-table [data]="globalIPs" [ro]="true"></app-ip-table>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </div>
+
+    <button mat-fab (click)="startStuff()">
+        <mat-icon>add</mat-icon>
+    </button>
 </div>
-
-
-<button mat-fab (click)="startStuff()">
-    <mat-icon>add</mat-icon>
-</button>

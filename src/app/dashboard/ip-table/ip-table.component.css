@@ -13,3 +13,36 @@
 :host div.hidden, span.hidden, button.hidden {
     visibility: hidden;
 }
+
+
+div.big-icon-message {
+    display: flex;
+    opacity: 0.5;
+    align-items: center;
+    justify-content: space-evenly;
+    max-width: fit-content;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+div.big-icon-message > .icon {
+    width: 5rem;
+    height: 5rem;
+    font-size: 5rem;
+    padding: 2rem;
+    display: block !important;
+}
+
+div.big-icon-message > .message {
+    width: min-content;
+    text-align: justify;
+}
+
+div.big-icon-message > .message > * {
+    margin: 0.25rem 0;
+    padding: 0;
+}
+
+div.big-icon-message > .message > h2 {
+    width: max-content;
+}

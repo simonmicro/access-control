@@ -9,6 +9,13 @@ export interface APITokenInfo {
   expires: Date,
   user: APIUser
 }
+export interface APIIP {
+  id: number;
+  name: string;
+  ip: string;
+  added: Date;
+  expires: Date;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -37,10 +44,13 @@ export class APIService {
   private async request(operator: string, data: object | null = null): Promise<any | null> {
     if(this.fakeEverything) {
       console.warn('Request emulation is active!', this.ownToken, operator, data);
-      if(operator === 'token/createWithCreds')
+      if(operator === 'token/createWithCreds') {
+        await new Promise((res) => { setTimeout(res, 4200); });
         return {token: 'dummy'};
-      else if(operator === 'token/info')
+      } else if(operator === 'token/info')
         return {user: {name: 'dummy'}};
+      else if(operator === 'ip/delete')
+        return;
       else
         throw {code: 404, error: 'Not found'};
     }
@@ -121,5 +131,27 @@ export class APIService {
 
   async createToken(user: string, pass: string): Promise<string> {
     return (await this.request('token/createWithCreds', {username: user, password: pass}))!.token;
+  }
+
+  async getIPs(global: boolean): Promise<APIIP[]> {
+    let response = (await this.request('ip/list', {global: global}))!.ips;
+    let returnme: APIIP[] = [];
+    for(let r of response)
+      returnme.push({
+        id: r.id,
+        name: r.name,
+        expires: r.expires,
+        added: r.added,
+        ip: r.ip
+      });
+    return returnme;
+  }
+
+  async addIP(ip: APIIP) {
+    return this.request('ip/add', {name: ip.name, ip: ip.ip});
+  }
+
+  async deleteIP(id: number) {
+    return this.request('ip/delete', {id: id});
   }
 }

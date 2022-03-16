@@ -1,12 +1,47 @@
-:host .loginAlign {
+:host > div {
     height: 100%;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    /*background: darkgreen;*/
+    background: url('../../assets/drops-6392473.jpg');
+    background-size: cover;
+    flex-direction: column;
 }
 
-:host .loginAlign > .loginInner {
+:host > div > mat-card {
     width: max-content;
+}
+
+:host > div > mat-card > h1 {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+:host > div > mat-card > p {
+    max-width: 100%;
+}
+
+:host > div > mat-card > form > mat-form-field {
+    width: 100%;
+}
+
+:host > div > mat-card > form > button {
+    float: right;
+}
+
+:host > div > mat-card > mat-progress-bar {
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 0.4rem 0.4rem 0 0;
+}
+
+:host > div > p {
+    box-shadow: rgba(255, 255, 255, 0.8) 0 0 1rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 0.2rem;
+    margin: 1rem;
+    padding: 0.2rem 0.6rem;
 }
