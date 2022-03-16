@@ -1,4 +1,4 @@
-<div>
+<div class="loginAlign">
     <mat-card>
         <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
         <h1 class="mat-display-2">Login</h1>
@@ -19,5 +19,8 @@
             <button mat-flat-button color="primary" type="submit" [disabled]="!loginForm.valid">Login</button>
         </form>
     </mat-card>
+</div>
+
+<div class="loginCopyright">
     <p class="mat-subheading-1">© Copyright {{ year }} simonmicro</p>
 </div>

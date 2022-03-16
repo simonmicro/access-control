@@ -1,4 +1,4 @@
-:host > div {
+:host > .loginAlign {
     height: 100%;
     width: 100%;
     display: flex;
@@ -9,28 +9,28 @@
     flex-direction: column;
 }
 
-:host > div > mat-card {
+:host > .loginAlign > mat-card {
     width: max-content;
 }
 
-:host > div > mat-card > h1 {
+:host > .loginAlign > mat-card > h1 {
     margin-bottom: 2rem;
     text-align: center;
 }
 
-:host > div > mat-card > p {
+:host > .loginAlign > mat-card > p {
     max-width: 100%;
 }
 
-:host > div > mat-card > form > mat-form-field {
+:host > .loginAlign > mat-card > form > mat-form-field {
     width: 100%;
 }
 
-:host > div > mat-card > form > button {
+:host > .loginAlign > mat-card > form > button {
     float: right;
 }
 
-:host > div > mat-card > mat-progress-bar {
+:host > .loginAlign > mat-card > mat-progress-bar {
     width: 100%;
     position: absolute;
     left: 0;
@@ -38,10 +38,20 @@
     border-radius: 0.4rem 0.4rem 0 0;
 }
 
-:host > div > p {
-    box-shadow: rgba(255, 255, 255, 0.8) 0 0 1rem;
+:host > .loginCopyright {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+:host > .loginCopyright > p {
+    box-shadow: rgba(255, 255, 255, 0.8) 0 0 0.4rem;
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 0.2rem;
     margin: 1rem;
-    padding: 0.2rem 0.6rem;
+    padding: 0.2rem 0.6rem; 
+    width: fit-content;
 }
