@@ -27,6 +27,7 @@ export class APIService {
   private ownTokenInfo: null | Promise<APITokenInfo | null>;
   private ownTokenTimeout?: any = null;
   private ownTokenEventEmitter: EventEmitter<APITokenInfo | null> = new EventEmitter();
+  public loading: boolean = false;
 
   constructor() {
     // Try to load last valid token from localStorage
@@ -41,20 +42,35 @@ export class APIService {
     // so the code crashes in case these calls happen too early.
   }
 
-  private async request(operator: string, data: object | null = null): Promise<any | null> {
+  private async _request(operator: string, data: any | null = null): Promise<any | null> {
     if(this.fakeEverything) {
+      await new Promise((res) => { setTimeout(res, Math.floor(Math.random() * 4200)); });
       console.warn('Request emulation is active!', this.ownToken, operator, data);
-      if(operator === 'token/createWithCreds') {
-        await new Promise((res) => { setTimeout(res, 4200); });
+      if(operator === 'token/createWithCreds')
         return {token: 'dummy'};
-      } else if(operator === 'token/info')
+      else if(operator === 'token/info')
         return {user: {name: 'dummy'}};
+      else if(operator === 'ip/add')
+          return {id: Math.random(), name: data!.name, ip: data!.ip, added: new Date(), expires: new Date()};
       else if(operator === 'ip/delete')
         return;
+      else if(operator === 'ip/public')
+        return {ip: '1.2.3.4'};
       else
         throw {code: 404, error: 'Not found'};
     }
     return null;
+  }
+
+  private async request(operator: string, data: any | null = null): Promise<any | null> {
+    this.loading = true;
+    try {
+      return await this._request(operator, data);
+    } catch(e) {
+      throw e;
+    } finally {
+      this.loading = false;
+    }
   }
 
   private async validateOwnToken(): Promise<APITokenInfo | null> {
@@ -147,11 +163,15 @@ export class APIService {
     return returnme;
   }
 
-  async addIP(ip: APIIP) {
-    return this.request('ip/add', {name: ip.name, ip: ip.ip});
+  async addIP(ip: string, name: string): Promise<APIIP> {
+    return this.request('ip/add', {name: name, ip: ip});
   }
 
   async deleteIP(id: number) {
     return this.request('ip/delete', {id: id});
+  }
+
+  async getPublicIP(): Promise<string> {
+    return (await this.request('ip/public')!).ip;
   }
 }

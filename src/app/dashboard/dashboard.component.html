@@ -1,3 +1,4 @@
+
 <div>
     <mat-toolbar color="primary">
         <span>{{ title }}</span>
@@ -8,6 +9,7 @@
             </button>
         </span>
     </mat-toolbar>
+    <mat-progress-bar *ngIf="api.loading" mode="indeterminate"></mat-progress-bar>
 
     <div>
         <mat-accordion>
@@ -17,7 +19,7 @@
                         Your IP Addresses
                     </mat-panel-title>
                     <mat-panel-description>
-                        Using {{ userIPs.length }} out of {{ Math.max(10, userIPs.length) }} IP addresses
+                        Using {{ userIPs.length }} out of {{ userIPsMax }} IP addresses
                     </mat-panel-description>
                 </mat-expansion-panel-header>
                 <app-ip-table [data]="userIPs" (deleteEvents)="deleteIP($event)"></app-ip-table>
@@ -34,7 +36,7 @@
         </mat-accordion>
     </div>
 
-    <button mat-fab (click)="startStuff()">
+    <button mat-fab *ngIf="userIPs.length < userIPsMax" (click)="openIPAssistant()">
         <mat-icon>add</mat-icon>
     </button>
 </div>

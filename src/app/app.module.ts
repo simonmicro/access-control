@@ -17,6 +17,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDialogModule } from '@angular/material/dialog'; 
+import { MatStepperModule } from '@angular/material/stepper'; 
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -27,6 +29,7 @@ import { IpTableComponent } from './dashboard/ip-table/ip-table.component';
 import { HideProdDirective } from './hide-prod.directive';
 import { DebugMenuComponent } from './debug-menu/debug-menu.component';
 import { Error404Component } from './error404/error404.component';
+import { IpAssistantComponent } from './dashboard/ip-assistant/ip-assistant.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +39,8 @@ import { Error404Component } from './error404/error404.component';
     IpTableComponent,
     HideProdDirective,
     DebugMenuComponent,
-    Error404Component
+    Error404Component,
+    IpAssistantComponent
   ],
   imports: [
     FormsModule,
@@ -58,7 +62,9 @@ import { Error404Component } from './error404/error404.component';
     MatChipsModule,
     MatExpansionModule,
     MatProgressSpinnerModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatDialogModule,
+    MatStepperModule
   ],
   providers: [
     {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 2500, horizontalPosition: 'left'}}

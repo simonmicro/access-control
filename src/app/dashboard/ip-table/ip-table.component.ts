@@ -31,12 +31,9 @@ export class IpTableComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnChanges(): void {
-    //if(!this.ro && this.displayedColumns.indexOf('action') == -1)
-    //  this.displayedColumns.push('action');
     this.paginate = this.data.length > this.pageSize;
     this.dataSource = new MatTableDataSource<APIIP>(this.data);
     this.dataSource!.paginator = this.paginator;
-    console.log(this.ro);
   }
   
   ngAfterViewInit() {
