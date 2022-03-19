@@ -30,6 +30,7 @@ import { HideProdDirective } from './hide-prod.directive';
 import { DebugMenuComponent } from './debug-menu/debug-menu.component';
 import { Error404Component } from './error404/error404.component';
 import { IpAssistantComponent } from './dashboard/ip-assistant/ip-assistant.component';
+import { ProvisionIndicatorComponent } from './dashboard/provision-indicator/provision-indicator.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { IpAssistantComponent } from './dashboard/ip-assistant/ip-assistant.comp
     HideProdDirective,
     DebugMenuComponent,
     Error404Component,
-    IpAssistantComponent
+    IpAssistantComponent,
+    ProvisionIndicatorComponent
   ],
   imports: [
     FormsModule,

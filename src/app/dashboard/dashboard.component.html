@@ -1,4 +1,3 @@
-
 <div>
     <mat-toolbar color="primary">
         <span>{{ title }}</span>
@@ -10,8 +9,10 @@
         </span>
     </mat-toolbar>
     <mat-progress-bar *ngIf="api.loading" mode="indeterminate"></mat-progress-bar>
-
+    
     <div>
+        <app-provision-indicator></app-provision-indicator>
+
         <mat-accordion>
             <mat-expansion-panel [expanded]="true">
                 <mat-expansion-panel-header>

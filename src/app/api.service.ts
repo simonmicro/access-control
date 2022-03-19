@@ -16,6 +16,10 @@ export interface APIIP {
   added: Date;
   expires: Date;
 }
+export interface APIProvision {
+  state: boolean;
+  since: Date;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -62,14 +66,16 @@ export class APIService {
     return null;
   }
 
-  private async request(operator: string, data: any | null = null): Promise<any | null> {
-    this.loading = true;
+  private async request(operator: string, data: any | null = null, background: boolean = false): Promise<any | null> {
+    if(!background)
+      this.loading = true;
     try {
       return await this._request(operator, data);
     } catch(e) {
       throw e;
     } finally {
-      this.loading = false;
+      if(!background)
+        this.loading = false;
     }
   }
 
@@ -173,5 +179,9 @@ export class APIService {
 
   async getPublicIP(): Promise<string> {
     return (await this.request('ip/public')!).ip;
+  }
+
+  async getProvision(): Promise<APIProvision> {
+    return this.request('provision/state', null, true);
   }
 }

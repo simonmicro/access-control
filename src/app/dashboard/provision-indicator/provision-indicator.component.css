@@ -1,0 +1,23 @@
+:host > mat-card > mat-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+:host > mat-card > div {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+:host > mat-card > div > mat-icon {
+    width: 6rem;
+    height: 6rem;
+    font-size: 6rem;
+    color: grey;
+    margin-right: 1rem;
+}
+
+:host > mat-card > div > span > .mat-small {
+    color: grey;
+}
