@@ -31,6 +31,7 @@ export class APIService {
   private ownTokenInfo: null | Promise<APITokenInfo | null>;
   private ownTokenTimeout?: any = null;
   private ownTokenEventEmitter: EventEmitter<APITokenInfo | null> = new EventEmitter();
+  private startLoading?: any = null;
   private stopLoading?: any = null;
   public loading: boolean = false;
 
@@ -77,7 +78,7 @@ export class APIService {
       if(this.stopLoading !== null)
         clearTimeout(this.stopLoading);
       this.stopLoading = null;
-      setTimeout(() => {
+      this.startLoading = setTimeout(() => {
         this.loading = true; // To prevent angular from complaining
       }, 100);
     }
@@ -91,6 +92,7 @@ export class APIService {
           this.stopLoading = setTimeout(() => {
             this.stopLoading = null;
             this.loading = false;
+            clearTimeout(this.startLoading);
           }, 1000);
         }
       }
