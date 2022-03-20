@@ -31,6 +31,7 @@ export class APIService {
   private ownTokenInfo: null | Promise<APITokenInfo | null>;
   private ownTokenTimeout?: any = null;
   private ownTokenEventEmitter: EventEmitter<APITokenInfo | null> = new EventEmitter();
+  private stopLoading?: any = null;
   public loading: boolean = false;
 
   constructor() {
@@ -60,6 +61,10 @@ export class APIService {
         return;
       else if(operator === 'ip/public')
         return {ip: '1.2.3.4'};
+      else if(operator === 'provision/state')
+        return {state: (new Date()).getMinutes() % 2, since: new Date()};
+      else if(operator === 'ip/list')
+        return {ips: [{id: Math.random(), name: 'Dummy', ip: '1.1.1.1', expires: new Date(), added: new Date()}]};
       else
         throw {code: 404, error: 'Not found'};
     }
@@ -67,15 +72,28 @@ export class APIService {
   }
 
   private async request(operator: string, data: any | null = null, background: boolean = false): Promise<any | null> {
-    if(!background)
-      this.loading = true;
+    // The loading flag will be set after 100ms of initial request and be unset 1000ms after complection!
+    if(!background) {
+      if(this.stopLoading !== null)
+        clearTimeout(this.stopLoading);
+      this.stopLoading = null;
+      setTimeout(() => {
+        this.loading = true; // To prevent angular from complaining
+      }, 100);
+    }
     try {
       return await this._request(operator, data);
     } catch(e) {
       throw e;
     } finally {
-      if(!background)
-        this.loading = false;
+      if(!background) {
+        if(this.stopLoading === null) {
+          this.stopLoading = setTimeout(() => {
+            this.stopLoading = null;
+            this.loading = false;
+          }, 1000);
+        }
+      }
     }
   }
 
