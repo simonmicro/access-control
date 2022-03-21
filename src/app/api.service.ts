@@ -52,7 +52,7 @@ export class APIService {
     if(this.fakeEverything) {
       await new Promise((res) => { setTimeout(res, Math.floor(Math.random() * 4200)); });
       console.warn('Request emulation is active!', this.ownToken, operator, data);
-      if(operator === 'token/createWithCreds')
+      if(operator === 'token/create/credentials')
         return {token: 'dummy'};
       else if(operator === 'token/info')
         return {user: {name: 'dummy'}};
@@ -172,7 +172,7 @@ export class APIService {
   }
 
   async createToken(user: string, pass: string): Promise<string> {
-    return (await this.request('token/createWithCreds', {username: user, password: pass}))!.token;
+    return (await this.request('token/create/credentials', {username: user, password: pass}))!.token;
   }
 
   async getIPs(global: boolean): Promise<APIIP[]> {
