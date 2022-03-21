@@ -48,11 +48,11 @@ export class APIService {
     // so the code crashes in case these calls happen too early.
   }
 
-  private async _request(operator: string, data: any | null = null): Promise<any | null> {
+  private async _request(method: string, operator: string, data: any | null = null): Promise<any | null> {
     if(this.fakeEverything) {
       await new Promise((res) => { setTimeout(res, Math.floor(Math.random() * 4200)); });
       console.warn('Request emulation is active!', this.ownToken, operator, data);
-      if(operator === 'token/create/credentials')
+      if(operator === 'token/create/oauth2')
         return {token: 'dummy'};
       else if(operator === 'token/info')
         return {user: {name: 'dummy'}};
@@ -69,10 +69,30 @@ export class APIService {
       else
         throw {code: 404, error: 'Not found'};
     }
-    return null;
+
+    const formDataAsQuery  = new URLSearchParams(); // Do not use FormData, as they would be multipart, which is not supported by the backend (at least for auth)!
+    for(const key in data)
+        formDataAsQuery.append(key, data[key]);
+
+    let headers = new Headers({
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+    if(this.ownToken)
+      headers.set('Authorization', 'Bearer ' + this.ownToken);
+    const resp = await fetch(environment.urlAPI + operator, {
+      method: method,
+      cache: 'no-cache',
+      headers: headers,
+      body: (method.toLowerCase() != 'get' && method.toLowerCase() != 'head') ? formDataAsQuery : null
+    });
+    const json = resp.json();
+    if(resp.ok)
+      return json;
+    else
+      throw json;
   }
 
-  private async request(operator: string, data: any | null = null, background: boolean = false): Promise<any | null> {
+  private async request(method: string, operator: string, data: any | null = null, background: boolean = false): Promise<any | null> {
     // The loading flag will be set after 100ms of initial request and be unset 1000ms after complection!
     if(!background) {
       if(this.stopLoading !== null)
@@ -83,7 +103,7 @@ export class APIService {
       }, 100);
     }
     try {
-      return await this._request(operator, data);
+      return await this._request(method, operator, data);
     } catch(e) {
       throw e;
     } finally {
@@ -103,7 +123,7 @@ export class APIService {
     // ALWAYS assign the return of this function to this.ownTokenInfo!!!
     let tokenInfo: APITokenInfo | null;
     try {
-      let c = (await this.request('token/info'))!;
+      let c = (await this.request('get', 'token/info'))!;
       tokenInfo = {expires: new Date(c.expires), user: {name: c.user.name}}; // Parse only known fields into structure
       if(this.ownToken) // In case the api somehow accepted a "null" token?! Do not save it.
         localStorage.setItem(this.storageKeyName, this.ownToken); // Persist this known good token
@@ -146,13 +166,14 @@ export class APIService {
       return true;
     } catch(error) {
       // Something is wrong with the token. Remove it!
-      return await this.setOwnToken(null);
+      await this.setOwnToken(null);
+      return false;
     }
   }
 
   async revokeOwnToken(): Promise<void> {
     try {
-      await this.request('token/delete', {token: this.ownToken});
+      await this.request('delete', 'token/delete', {token: this.ownToken});
     } catch(e) {
       // Ignore
     }
@@ -172,11 +193,15 @@ export class APIService {
   }
 
   async createToken(user: string, pass: string): Promise<string> {
-    return (await this.request('token/create/credentials', {username: user, password: pass}))!.token;
+    return (await this.request('post', 'token/create/oauth2', {
+      grant_type: 'password',
+      username: user,
+      password: pass
+    }))!.access_token;
   }
 
   async getIPs(global: boolean): Promise<APIIP[]> {
-    let response = (await this.request('ip/list', {global: global}))!.ips;
+    let response = (await this.request('get', 'ip/list', {global: global}))!.ips;
     let returnme: APIIP[] = [];
     for(let r of response)
       returnme.push({
@@ -190,18 +215,18 @@ export class APIService {
   }
 
   async addIP(ip: string, name: string): Promise<APIIP> {
-    return this.request('ip/add', {name: name, ip: ip});
+    return this.request('post', 'ip/add', {name: name, ip: ip});
   }
 
   async deleteIP(id: number) {
-    return this.request('ip/delete', {id: id});
+    return this.request('delete', 'ip/delete', {id: id});
   }
 
   async getPublicIP(): Promise<string> {
-    return (await this.request('ip/public')!).ip;
+    return (await this.request('get', 'ip/public')!).ip;
   }
 
   async getProvision(): Promise<APIProvision> {
-    return this.request('provision/state', null, true);
+    return this.request('get', 'provision/state', null, true);
   }
 }
