@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
   fakeAPI: false,
-  urlAPI: '/api/'
+  urlAPI: '/api/',
+  wsAPI: '/api/'
 };

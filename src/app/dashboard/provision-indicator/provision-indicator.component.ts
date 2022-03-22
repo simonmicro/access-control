@@ -9,6 +9,7 @@ import { APIService } from 'src/app/api.service';
 })
 export class ProvisionIndicatorComponent implements OnInit {
   private interval: any | null = null;
+  private websocket: WebSocket | null = null;
   moment = moment;
   since: Date = new Date();
   active: boolean = false;
@@ -17,10 +18,15 @@ export class ProvisionIndicatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.interval = setInterval(async () => {
+      // In case websockets are broken / unsupported
       let state = await this.api.getProvision();
       this.active = state.state;
       this.since = state.since;
-    }, 1000);
+    }, 60 * 1000);
+    this.api.subscribeToProvision(state => {
+      this.active = state.state;
+      this.since = state.since;
+    });
   }
 
   ngOnDestroy(): void {

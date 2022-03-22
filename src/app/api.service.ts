@@ -33,6 +33,8 @@ export class APIService {
   private ownTokenEventEmitter: EventEmitter<APITokenInfo | null> = new EventEmitter();
   private startLoading?: any = null;
   private stopLoading?: any = null;
+  private provisionWebsocket?: WebSocket;
+  private provisionEventEmitter: EventEmitter<APIProvision | null> = new EventEmitter();
   public loading: boolean = false;
 
   constructor() {
@@ -157,12 +159,25 @@ export class APIService {
     }
 
     // Real (invalid?) token set, validate it!
-    this.ownToken = token;
+    if(this.provisionWebsocket) {
+      this.provisionWebsocket.onclose = null;
+      this.provisionWebsocket.close();
+    }
     this.ownTokenInfo = this.validateOwnToken();
 
     // Validate given token and either keep it or throw it away...
     try {
       await this.ownTokenInfo; // If it fails, we fail too!
+      this.provisionWebsocket = new WebSocket(environment.wsAPI + 'provision/state/ws?token=' + this.ownToken);
+      this.provisionWebsocket.onmessage = evt => {
+        // This indicates a provision state change!
+        let emitMe = JSON.parse(evt.data);
+        this.provisionEventEmitter.emit({
+          state: emitMe.state,
+          since: emitMe.since
+        });
+      };
+      this.provisionWebsocket.onclose = evt => console.error(evt); // Whoops! -> TODO reconnect?
       return true;
     } catch(error) {
       // Something is wrong with the token. Remove it!
@@ -228,5 +243,9 @@ export class APIService {
 
   async getProvision(): Promise<APIProvision> {
     return this.request('get', 'provision/state', null, true);
+  }
+
+  subscribeToProvision(next?: (value: any) => void, error?: (error: any) => void, complete?: () => void): Subscription {
+    return this.provisionEventEmitter.subscribe(next, error, complete);
   }
 }
