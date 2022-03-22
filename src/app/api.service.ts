@@ -259,7 +259,7 @@ export class APIService {
   }
 
   async getPublicIP(): Promise<string> {
-    return (await this.request('get', 'ip/public')!).ip;
+    return this.request('get', 'ip/public');
   }
 
   async getProvision(): Promise<APIProvision> {
