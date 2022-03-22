@@ -146,12 +146,15 @@ export class APIService {
     this.ownToken = null;
     this.ownTokenInfo = Promise.resolve(null);
     localStorage.removeItem(this.storageKeyName);
-    let s = this.websocket;
-    this.websocket = null;
-    s?.close();
+    this.disableWebsocket();
   }
 
-  private createNewWebsocket(): WebSocket {
+  private enableWebsocket(force: boolean = false): WebSocket {
+    if(!force) {
+      if(this.websocket !== null)
+        return this.websocket;
+      console.debug('Websocket enabled');
+    }
     let s = new WebSocket(environment.wsAPI + 'ws?token=' + this.ownToken);
     s.onopen = evt => {
       this.websocketTimeout = 0; // Connection confirmed
@@ -166,16 +169,28 @@ export class APIService {
     };
     s.onclose = async evt => {
       this.websocketTimeout++;
-      await new Promise((res) => { setTimeout(res, Math.min(this.websocketTimeout, 30) * 1000); }); // Cooldown increasing amount after connection failure...
+      const retryIn = Math.min(this.websocketTimeout, 30);
+      await new Promise((res) => { setTimeout(res, retryIn * 1000); }); // Cooldown increasing amount after connection failure...
       // Whoops, the socket was closed! Try to reconnect (if this socket is not to be deleted)
       if(this.websocket) {
-        console.warn('Provision websocket unexpectedly disconnected - reconnecting (' + this.websocketTimeout + ')...');
-        this.websocket = this.createNewWebsocket();
+        console.warn('Websocket unexpectedly disconnected - reconnecting (' + this.websocketTimeout + ')...');
+        this.websocket = this.enableWebsocket(true);
       } else {
         // Reference removed, let the connection die...
+        this.disableWebsocket();
       }
     };
     return s;
+  }
+
+  private disableWebsocket(): void {
+    if(this.websocket === null)
+      return;
+    console.debug('Websocket disabled');
+    let s = this.websocket; // First remove the ref, then close - otherwise onclose() will reconnect
+    this.websocket = null;
+    s?.close();
+    this.websocketTimeout = 0;
   }
 
   async setOwnToken(token: string | null): Promise<boolean> {
@@ -190,15 +205,13 @@ export class APIService {
     }
 
     // Real (invalid?) token set, validate it!
-    let s = this.websocket;
-    this.websocket = null; // First remove the ref, then close - otherwise onclose() will reconnect
-    s?.close();
+    this.disableWebsocket();
     this.ownTokenInfo = this.validateOwnToken();
 
     // Validate given token and either keep it or throw it away...
     try {
       await this.ownTokenInfo; // If it fails, we fail too!
-      this.websocket = this.createNewWebsocket();
+      this.websocket = this.enableWebsocket();
       return true;
     } catch(error) {
       // Something is wrong with the token. Remove it!
