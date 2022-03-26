@@ -95,7 +95,7 @@ export class APIService {
     if(resp.ok)
       return json;
     else
-      throw json;
+      throw await json;
   }
 
   private async request(method: string, operator: string, params: any | null = null, data: any | null = null, background: boolean = false): Promise<any | null> {
