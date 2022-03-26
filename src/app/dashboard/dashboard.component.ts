@@ -16,6 +16,7 @@ export class DashboardComponent implements OnInit {
   userIPs: APIIP[] = [];
   globalIPs: APIIP[] = [];
   userIPsMax: number = 16; //Math.max(10, this.userIPs.length);
+  apiDocs: string = '';
 
   constructor(private authSvc: AuthenticationService, public api: APIService, private dialog: MatDialog) { }
 
@@ -27,6 +28,7 @@ export class DashboardComponent implements OnInit {
     // Fill component data
     this.api.getIPs(false).then(l => this.userIPs = l);
     this.api.getIPs(true).then(l => this.globalIPs = l);
+    this.apiDocs = this.api.getDocsURI();
   }
 
   ngOnDestroy(): void {
@@ -52,8 +54,8 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  deleteIP(ip: APIIP) {
-    this.api.deleteIP(ip.id);
-    this.userIPs = this.userIPs.filter(v => { return v.id != ip.id; });
+  async deleteIP(ip: APIIP) {
+    await this.api.deleteIP(ip.ip);
+    this.userIPs = this.userIPs.filter(v => { return v.ip != ip.ip; });
   }
 }

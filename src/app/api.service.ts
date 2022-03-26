@@ -10,7 +10,6 @@ export interface APITokenInfo {
   user: APIUser
 }
 export interface APIIP {
-  id: number;
   name: string;
   ip: string;
   added: Date;
@@ -193,6 +192,10 @@ export class APIService {
     this.websocketTimeout = 0;
   }
 
+  getDocsURI(): string {
+    return environment.urlAPI + 'docs';
+  }
+
   async setOwnToken(token: string | null): Promise<boolean> {
     clearTimeout(this.ownTokenTimeout); // Cancel remaining checks
     this.ownToken = token;
@@ -254,7 +257,6 @@ export class APIService {
     let returnme: APIIP[] = [];
     for(let r of response)
       returnme.push({
-        id: r.id,
         name: r.name,
         expires: r.expires,
         added: r.added,
@@ -267,8 +269,8 @@ export class APIService {
     return this.request('post', 'ip/add', {name: name, ip: ip});
   }
 
-  async deleteIP(id: number) {
-    return this.request('delete', 'ip/delete', {id: id});
+  async deleteIP(ip: string) {
+    return this.request('delete', 'ip/delete', {ip: ip});
   }
 
   async getPublicIP(): Promise<string> {

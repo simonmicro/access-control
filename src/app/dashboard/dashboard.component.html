@@ -3,6 +3,9 @@
         <span>{{ title }}</span>
         <span>
             <app-debug-menu></app-debug-menu>
+            <a mat-icon-button [href]="apiDocs" target="_blank">
+                <mat-icon>api</mat-icon>
+            </a>
             <button mat-icon-button (click)="logout()">
                 <mat-icon>logout</mat-icon>
             </button>
