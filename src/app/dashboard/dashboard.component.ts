@@ -15,7 +15,7 @@ export class DashboardComponent implements OnInit {
   title?: string;
   userIPs: APIIP[] = [];
   globalIPs: APIIP[] = [];
-  userIPsMax: number = 16; //Math.max(10, this.userIPs.length);
+  userIPsMax: number = 0;
   apiDocs: string = '';
 
   constructor(private authSvc: AuthenticationService, public api: APIService, private dialog: MatDialog) { }
@@ -37,6 +37,7 @@ export class DashboardComponent implements OnInit {
 
   private userUpdate(u: APIUser) {
     this.title = 'Welcome, ' + u.name + '!';
+    this.userIPsMax = u.limit;
   }
 
   async logout(): Promise<void> {
