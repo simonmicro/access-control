@@ -51,7 +51,7 @@ export class APIService {
     // so the code crashes in case these calls happen too early.
   }
 
-  private async _request(method: string, operator: string, data: any | null = null): Promise<any | null> {
+  private async _request(method: string, operator: string, params: any | null = null, data: any | null = null): Promise<any | null> {
     if(this.fakeEverything) {
       await new Promise((res) => { setTimeout(res, Math.floor(Math.random() * 4200)); });
       console.warn('Request emulation is active!', this.ownToken, operator, data);
@@ -73,16 +73,19 @@ export class APIService {
         throw {code: 404, error: 'Not found'};
     }
 
-    const formDataAsQuery  = new URLSearchParams(); // Do not use FormData, as they would be multipart, which is not supported by the backend (at least for auth)!
+    const paramsAsQuery = new URLSearchParams();
+    for(const key in params)
+      paramsAsQuery.append(key, params[key]);
+    const formDataAsQuery = new URLSearchParams(); // Do not use FormData, as they would be multipart, which is not supported by the backend (at least for authentication)!
     for(const key in data)
-        formDataAsQuery.append(key, data[key]);
+      formDataAsQuery.append(key, data[key]);
 
     let headers = new Headers({
       'Content-Type': 'application/x-www-form-urlencoded'
     });
     if(this.ownToken)
       headers.set('Authorization', 'Bearer ' + this.ownToken);
-    const resp = await fetch(environment.urlAPI + operator, {
+    const resp = await fetch(environment.urlAPI + operator + (params !== null ? ('?' + paramsAsQuery) : ''), {
       method: method,
       cache: 'no-cache',
       headers: headers,
@@ -95,7 +98,7 @@ export class APIService {
       throw json;
   }
 
-  private async request(method: string, operator: string, data: any | null = null, background: boolean = false): Promise<any | null> {
+  private async request(method: string, operator: string, params: any | null = null, data: any | null = null, background: boolean = false): Promise<any | null> {
     // The loading flag will be set after 100ms of initial request and be unset 1000ms after complection!
     if(!background) {
       if(this.stopLoading !== null)
@@ -106,7 +109,7 @@ export class APIService {
       }, 100);
     }
     try {
-      return await this._request(method, operator, data);
+      return await this._request(method, operator, params, data);
     } catch(e) {
       throw e;
     } finally {
@@ -226,7 +229,7 @@ export class APIService {
 
   async revokeOwnToken(): Promise<void> {
     try {
-      await this.request('delete', 'token/delete', {token: this.ownToken});
+      await this.request('delete', 'token/delete');
     } catch(e) {
       // Ignore
     }
@@ -246,7 +249,7 @@ export class APIService {
   }
 
   async createToken(user: string, pass: string): Promise<string> {
-    return (await this.request('post', 'token/create/oauth2', {
+    return (await this.request('post', 'token/create/oauth2', null, {
       grant_type: 'password',
       username: user,
       password: pass
@@ -254,7 +257,7 @@ export class APIService {
   }
 
   async getIPs(global: boolean): Promise<APIIP[]> {
-    let response = (await this.request('get', 'ip/list', {global: global}))!.ips;
+    let response = (await this.request('get', 'ip/list', {globals: global}))!.ips;
     let returnme: APIIP[] = [];
     for(let r of response)
       returnme.push({
@@ -279,7 +282,7 @@ export class APIService {
   }
 
   async getProvision(): Promise<APIProvision> {
-    return this.request('get', 'provision/state', null, true);
+    return this.request('get', 'provision/state', null, null, true);
   }
 
   subscribeToProvision(next?: (value: any) => void, error?: (error: any) => void, complete?: () => void): Subscription {
