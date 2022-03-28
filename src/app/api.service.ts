@@ -163,6 +163,9 @@ export class APIService {
       this.websocketTimeout = 0; // Connection confirmed
     };
     s.onmessage = evt => {
+      if(evt.data == 'ping')
+        // Ignore, TCP already indicated out successful receive
+        return;
       // This indicates a provision state change!
       let emitMe = JSON.parse(evt.data);
       this.provisionEventEmitter.emit({
