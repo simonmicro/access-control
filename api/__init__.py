@@ -5,11 +5,24 @@ from fastapi import FastAPI, HTTPException, Depends, Request, WebSocket, WebSock
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from enum import Enum
+from uvicorn.main import Server # Used for shutdown hooks
 import api.config
 import api.utils
 import api.provision
 from api.models import *
 import datetime, random, redis, os, hashlib, string, threading
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Install dumb shutdown catcher to prevent websockets staying open
+originalShutdown = Server.handle_exit
+workerShutdownRequested = False
+def handleHookedShutdown(*args, **kwargs):
+    global workerShutdownRequested
+    workerShutdownRequested = True
+    originalShutdown(*args, **kwargs)
+Server.handle_exit = handleHookedShutdown
 
 class Tags(Enum):
     tokens = 'Tokens'
@@ -33,8 +46,6 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
-thisIsAVeryRealBoolRunThisThingy = False
-
 def authorize(token: str):
     try:
         api.utils.validateToken(token)
@@ -45,17 +56,7 @@ def authorize(token: str):
 
 @app.on_event("startup")
 def bootupWorker():
-    global thisIsAVeryRealBoolRunThisThingy
     app.state.redisClient = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=os.environ.get('REDIS_PORT', 6379), db=0, decode_responses=True)
-    app.state.requestShutdown = False
-    thisIsAVeryRealBoolRunThisThingy = True
-
-@app.on_event("shutdown")
-def shutdownWorker():
-    global thisIsAVeryRealBoolRunThisThingy
-    app.state.requestShutdown = True
-    thisIsAVeryRealBoolRunThisThingy = False
-    print('SHITDPOWN')
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token/create/oauth2")
 @app.post("/token/create/oauth2", tags=[Tags.tokens], summary='Create a new token using OAuth2')
@@ -172,7 +173,7 @@ async def provisionState(token: str = Depends(oauth2_scheme)):
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket, token: str):
-    global thisIsAVeryRealBoolRunThisThingy
+    global workerShutdownRequested
     await websocket.accept()
     try:
         authorize(token)
@@ -180,6 +181,8 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
         await websocket.send_text('Invalid token')
         await websocket.close()
         return
+    websocketId = random.randint(100000, 999999)
+    logger.info(f'Websocket {websocketId} connected.')
     # Send initial state
     s = api.provision.getProvisionState(app.state.redisClient)
     await websocket.send_json({
@@ -189,22 +192,38 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
     # Send updates
     sub = app.state.redisClient.pubsub(ignore_subscribe_messages=True)
     sub.subscribe('provision/state')
-    checkToken = 0
-    wsId = random.randint(1000, 9999)
-    while not app.state.requestShutdown:
-        # TODO use await/async pattern
+    loopEvery = 0.1
+    reauthEvery = 30 # ...seconds
+    reauthNext = datetime.datetime.now()
+    pingEvery = 10 # ...seconds
+    pingNext = datetime.datetime.now()
+    while not workerShutdownRequested:
+        # Send out new provision state
         msg = sub.get_message()
         if msg is not None:
             try:
                 await websocket.send_json(msg['data'])
             except:
-                # ANY error will trigger us to give up the websocket!
-                break
-        await asyncio.sleep(1)
-        checkToken -= 1
-        if checkToken <= 0:
+                logger.info(f'Websocket {websocketId} disconnected by failed communication.')
+                break # ANY error will trigger us to give up the websocket!
+        # Reauth?
+        await asyncio.sleep(loopEvery)
+        if datetime.datetime.now() > reauthNext:
             if app.state.redisClient.get('keys/' + token) is None:
                 # Check if the token is still valid, if not close the connection
+                logger.info(f'Websocket {websocketId} disconnected by deleted token.')
                 break
-            checkToken = 10
-        print(wsId, thisIsAVeryRealBoolRunThisThingy, app.state.requestShutdown, checkToken)
+            reauthNext = datetime.datetime.now() + datetime.timedelta(seconds=reauthEvery)
+        if datetime.datetime.now() > pingNext:
+            # Ping if needed
+            try:
+                await websocket.send_text('ping')
+            except:
+                logger.info(f'Websocket {websocketId} disconnected by missed ping.')
+                break # ANY error will trigger us to give up the websocket!
+            pingNext = datetime.datetime.now() + datetime.timedelta(seconds=pingEvery)
+    try:
+        await websocket.close()
+    except:
+        # Maybe the websocket is already closed / broken
+        pass
