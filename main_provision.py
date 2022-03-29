@@ -1,9 +1,11 @@
 import os
 import json
+import time
 import redis
 import logging
 import argparse
 import datetime
+import ipaddress
 
 # Parse args
 parser = argparse.ArgumentParser()
@@ -27,14 +29,61 @@ def setProvisionState(state: bool):
 
 def runProvision():
     global redisClient
+    # NOTE: This is also used to remove any expired IPs from the users ips set
     setProvisionState(True)
-    import time
+    # Fetch current set of scopes
+    userToScope = {}
+    scopeToIPs = {}
+    for scopeId, scopeStr in redisClient.hgetall('scopes').items():
+        scopeData = json.loads(scopeStr)
+        for username in scopeData['users']:
+            if username not in userToScope.keys():
+                userToScope[username] = set()
+            userToScope[username].add(scopeId)
+        scopeToIPs[scopeId] = set()
+    # Run over every users ip
+    nextExpire = None
+    for username, userStr in redisClient.hgetall('users').items():
+        userData = json.loads(userStr)
+        if username not in userToScope.keys():
+            # Only remember ips if they are referenced in at least one scope
+            continue
+        for ip, ipStr in redisClient.hgetall('ips/' + username).items():
+            ipData = json.loads(ipStr)
+            if ipData['expire'] is not None:
+                expireOn = datetime.datetime.fromisoformat(ipData['expire'])
+                if expireOn < datetime.datetime.now():
+                    redisClient.hdel(keyPath, ip)
+                    continue
+                if nextExpire is None or expireOn < nextExpire:
+                    nextExpire = expireOn
+            for scopeId in userToScope[username]:
+                scopeToIPs[scopeId].add(ipaddress.IPv4Address(ip))
+    # Fetch the global ips and add them to all scopes
+    for ip, ipStr in redisClient.hgetall('ips/global').items():
+        ipData = json.loads(ipStr)
+        for scopeId in scopeToIPs.keys():
+            scopeToIPs[scopeId].add(ipaddress.IPv4Address(ip))
+    # Create ip lists
+    #   TODO
+    # Apply new ConfigMaps
+    #   TODO
+    # Annotate all nginx pods to force instant rollout
+    #   TODO
     time.sleep(10)
     setProvisionState(False)
+    return nextExpire
 
-runProvision() # Initial provision
+nextRun = runProvision() # Initial provision
 
 sub = redisClient.pubsub(ignore_subscribe_messages=True)
 sub.subscribe('provision/start')
-for message in sub.listen():
-    runProvision()
+while True:
+    # Check for new messages
+    message = sub.get_message()
+    if message is not None:
+        nextRun = runProvision()
+    # Or on next scheduled run
+    if nextRun is not None and nextRun < datetime.datetime.now():
+        nextRun = runProvision()
+    time.sleep(1)

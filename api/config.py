@@ -23,7 +23,7 @@ def apply(redisHost: str, redisPort: int, yamlPath: str):
         r.hset('scopes', scopeId, json.dumps({
             'name': scopeData['name'],
             'url': scopeData['url'],
-            'users': json.dumps(scopeUsers)
+            'users': scopeUsers
         }))
     # Keys
     persistentKeysCount = 0
