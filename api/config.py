@@ -72,4 +72,6 @@ def apply(redisHost: str, redisPort: int, yamlPath: str):
             'added': str(datetime.datetime.now()),
             'expire': None
         }))
+    # Trigger instant provision
+    api.provision.requestProvision(r)
     logger.info(f'Applied {len(general["ips"].items())} global IPs, {len(config["scopes"])} scopes, {persistentKeysCount} persistent keys and {len(config["users"])} users.')
