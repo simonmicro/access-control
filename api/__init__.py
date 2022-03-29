@@ -202,7 +202,7 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
         msg = sub.get_message()
         if msg is not None:
             try:
-                await websocket.send_json(msg['data'])
+                await websocket.send_text(msg['data'])
             except:
                 logger.info(f'Websocket {websocketId} disconnected by failed communication.')
                 break # ANY error will trigger us to give up the websocket!
