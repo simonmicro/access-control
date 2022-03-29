@@ -265,8 +265,8 @@ export class APIService {
     for(let r of response)
       returnme.push({
         name: r.name,
-        expires: r.expires,
-        added: r.added,
+        expires: new Date(r.expires),
+        added: new Date(r.added),
         ip: r.ip
       });
     return returnme;
