@@ -127,8 +127,8 @@ async def ipAdd(ip: str, name: str, token: str = Depends(oauth2_scheme)):
         'added': str(added),
         'expire': str(expires)
     }))
+    app.state.redisClient.expire('ips/' + tokenInfo['username'], timeout) # We know our new key will be the newest (with latest expire)
     api.provision.requestProvision(app.state.redisClient)
-    # TODO set proper expire on set and remove ip elements automatically
     return IP(
         name=name,
         ip=parsedIP,
