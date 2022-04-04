@@ -114,11 +114,14 @@ export class APIService {
       throw e;
     } finally {
       if(!background) {
+        if(this.startLoading !== null) {
+          clearTimeout(this.startLoading);
+          this.startLoading = null;
+        }
         if(this.stopLoading === null) {
           this.stopLoading = setTimeout(() => {
             this.stopLoading = null;
             this.loading = false;
-            clearTimeout(this.startLoading);
           }, 1000);
         }
       }
