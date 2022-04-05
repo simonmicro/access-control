@@ -1,0 +1,24 @@
+general:
+  ip_limit: 16
+  expire_max: 86400 # 24h for all users
+  ips:
+    192.168.0.1: Name
+
+scopes:
+  example: # This will be used as filename (-> example.list)
+    name: 'Example Scope'
+    url: 'example.com' # Used to determine scope based on return URL
+
+users:
+  # Username "global" is reserved
+  john: # Is the username
+    name: John Doe
+    password: 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8 # Very simple, use this: https://emn178.github.io/online-tools/sha256.html
+    scopes:
+      - example
+    keys: [] # In case a user needs fixed keys, you can add them here...
+  user: # Is the username
+    name: USER
+    password: 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8 # Very simple, use this: https://emn178.github.io/online-tools/sha256.html
+    scopes: []
+    keys: []
