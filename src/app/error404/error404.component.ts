@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-error404',
@@ -7,7 +8,9 @@ import { Component, OnInit } from '@angular/core';
 })
 export class Error404Component implements OnInit {
 
-  constructor() { }
+  constructor(private titleSvc: Title) {
+    this.titleSvc.setTitle('Error 404');
+  }
 
   ngOnInit(): void {
   }

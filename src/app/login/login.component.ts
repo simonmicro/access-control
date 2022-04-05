@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationService } from '../authentication.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +19,9 @@ export class LoginComponent implements OnInit {
     password: [null, Validators.required]
   });
 
-  constructor(private formBuilder: FormBuilder, private authSvc: AuthenticationService, private snackBar: MatSnackBar) { }
+  constructor(private formBuilder: FormBuilder, private authSvc: AuthenticationService, private snackBar: MatSnackBar, private titleSvc: Title) {
+    this.titleSvc.setTitle('Login');
+  }
 
   async onSubmit(): Promise<void> {
     this.loading = true;

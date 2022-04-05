@@ -5,6 +5,7 @@ import { APIUser, APIIP, APIService } from '../api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { IpAssistantComponent } from './ip-assistant/ip-assistant.component'
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,7 +21,9 @@ export class DashboardComponent implements OnInit {
   userIPsMax: number = 0;
   apiDocs: string = '';
 
-  constructor(private authSvc: AuthenticationService, public api: APIService, private dialog: MatDialog, private snackbar: MatSnackBar) { }
+  constructor(private authSvc: AuthenticationService, public api: APIService, private dialog: MatDialog, private snackbar: MatSnackBar, private titleSvc: Title) {
+    this.titleSvc.setTitle('Dashboard');
+  }
 
   async ngOnInit(): Promise<void> {
     // Bind title to user information
