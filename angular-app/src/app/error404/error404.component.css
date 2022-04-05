@@ -1,0 +1,15 @@
+:host > div {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+:host > div > mat-card > a {
+    float: right;
+}
+
+:host > div > mat-card > div > img {
+    box-shadow: lightgray 0 0 1em;
+}

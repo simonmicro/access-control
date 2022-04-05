@@ -1,0 +1,25 @@
+:host > div {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: flex-start;
+}
+
+:host > div > mat-toolbar {
+    display: flex;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+:host > div > button {
+    position: sticky;
+    left: unset;
+    bottom: 2em;
+    right: 2em;
+    align-self: flex-end;
+}
+
+:host > div > div {
+    margin: 1em;
+    height: 100%;
+}

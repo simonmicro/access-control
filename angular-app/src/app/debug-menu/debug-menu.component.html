@@ -1,0 +1,7 @@
+<button mat-icon-button *hideProd [matMenuTriggerFor]="debugMenu"><mat-icon>pest_control</mat-icon></button>
+
+<mat-menu #debugMenu="matMenu">
+    <button mat-menu-item (click)="revokeToken()">Revoke api token</button>
+    <button mat-menu-item (click)="validateToken()">Validate api token</button>
+    <button mat-menu-item (click)="clearToken()">Call api.killOwnToken()</button>
+</mat-menu>

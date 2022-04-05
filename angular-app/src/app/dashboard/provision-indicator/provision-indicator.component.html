@@ -1,0 +1,15 @@
+<mat-card *ngIf="active">
+    <mat-progress-bar mode="indeterminate" color="warn"></mat-progress-bar>
+    <div>
+        <mat-icon>hourglass_empty</mat-icon>
+        <span>
+            <p class="mat-body">
+                The rollout of the changes is in progress since {{ moment(since).fromNow() }}.
+                Usually it only takes a few minutes to propagate the changes into the whole cluster.
+                You can make further changes as you wish, but keep in mind that these additions will delay the completion.
+            </p>
+            <p class="mat-small">Provisioning since {{ moment(since).format('MMMM Do YYYY, hh:mm:ss') }}...</p>
+        </span>
+    </div>
+</mat-card>
+<br *ngIf="active">

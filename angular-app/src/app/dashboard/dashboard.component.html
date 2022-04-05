@@ -1,0 +1,46 @@
+<div>
+    <mat-toolbar color="primary">
+        <span>{{ title }}</span>
+        <span>
+            <app-debug-menu></app-debug-menu>
+            <a mat-icon-button [href]="apiDocs" target="_blank">
+                <mat-icon>api</mat-icon>
+            </a>
+            <button mat-icon-button (click)="logout()">
+                <mat-icon>logout</mat-icon>
+            </button>
+        </span>
+    </mat-toolbar>
+    <mat-progress-bar *ngIf="api.loading" mode="indeterminate"></mat-progress-bar>
+    
+    <div>
+        <app-provision-indicator></app-provision-indicator>
+
+        <mat-accordion>
+            <mat-expansion-panel [expanded]="true">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Your IP Addresses
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        Using {{ userIPs.length }} out of {{ userIPsMax }} IP addresses
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <app-ip-table [data]="userIPs" (deleteEvents)="deleteIP($event)"></app-ip-table>
+            </mat-expansion-panel>
+
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Global IP Addresses
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <app-ip-table [data]="globalIPs" [ro]="true"></app-ip-table>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </div>
+
+    <button mat-fab *ngIf="userIPs.length < userIPsMax" (click)="openIPAssistant()">
+        <mat-icon>add</mat-icon>
+    </button>
+</div>
