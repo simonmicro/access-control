@@ -186,6 +186,7 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
     # Send initial state
     s = api.provision.getProvisionState(app.state.redisClient)
     await websocket.send_json({
+        'id': s.id,
         'state': s.state,
         'since': str(s.since)
     })

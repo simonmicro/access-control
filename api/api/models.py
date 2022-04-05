@@ -22,6 +22,7 @@ class TokenInfo(BaseModel):
     expire: datetime.datetime
 
 class ProvisionInfo(BaseModel):
+    id: str
     state: bool
     since: Optional[datetime.datetime]
 

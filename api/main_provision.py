@@ -1,36 +1,44 @@
 import os
 import json
 import time
+import yaml
+import uuid
 import redis
 import logging
 import argparse
 import datetime
+import tempfile
 import ipaddress
+import subprocess
 
 # Parse args
 parser = argparse.ArgumentParser()
 parser.add_argument('--debug', action='store_true', help='Enable debug logging')
 parser.add_argument('--redis_host', type=str, required=True, help='Redis server hostname')
 parser.add_argument('--redis_port', type=int, default=6379, help='Redis server port')
+parser.add_argument('--configmap', type=str, required=True, help='Target configmap name')
+parser.add_argument('--pod-selector', type=str, help='Which pods should be annotated on configmap updates? Use e.g. "app=nginx"')
 args = parser.parse_args()
 logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
 redisClient = redis.Redis(host=args.redis_host, port=args.redis_port, db=0, decode_responses=True)
-def setProvisionState(state: bool):
+def setProvisionState(state: bool, id: str):
     global redisClient
     s = {
+        'id': id,
         'state': state,
         'since': str(datetime.datetime.now())
     }
     j = json.dumps(s)
     redisClient.set('provision/state', j)
     redisClient.publish('provision/state', j)
-    print(f'{"Started" if state else "Finished"} provision at {datetime.datetime.now()}.')
+    print(f'[{id}] {"Started" if state else "Finished"} provision at {datetime.datetime.now()}.')
 
 def runProvision():
     global redisClient
     # NOTE: This is also used to remove any expired IPs from the users ips set
-    setProvisionState(True)
+    provisionId = uuid.uuid4().hex
+    setProvisionState(True, provisionId)
     # Fetch current set of scopes
     userToScope = {}
     scopeToIPs = {}
@@ -64,14 +72,36 @@ def runProvision():
         ipData = json.loads(ipStr)
         for scopeId in scopeToIPs.keys():
             scopeToIPs[scopeId].add(ipaddress.IPv4Address(ip))
-    # Create ip lists
-    #   TODO
-    # Apply new ConfigMaps
-    #   TODO
-    # Annotate all nginx pods to force instant rollout
-    #   TODO
-    time.sleep(10)
-    setProvisionState(False)
+    with tempfile.NamedTemporaryFile('w', suffix='.yaml') as tempYaml:
+        # Create ip lists
+        configDict = {}
+        for scope, ips in scopeToIPs.items():
+            scopeFilename = scope + '.list'
+            configDict[scopeFilename] = 'default 0;\n'
+            for ip in ips:
+                configDict[scopeFilename] += str(ip) + ' 1;\n'
+        outStr = yaml.dump({
+            'apiVersion': 'v1',
+            'kind': 'ConfigMap',
+            'metadata': { 'name': args.configmap },
+            'data': configDict
+        })
+        logging.debug(outStr)
+        tempYaml.write(outStr)
+        tempYaml.flush()
+        # Apply new ConfigMaps
+        subprocess.check_output(['kubectl', 'replace', '-f', tempYaml.name])
+        logging.debug('Replaced configmap ' + args.configmap)
+        time.sleep(1) # Give the configmap some time to propagate
+        if args.pod_selector is not None:
+            # Annotate all nginx pods to force instant rollout
+            podYaml = yaml.safe_load(subprocess.check_output(['kubectl', 'get', 'pods', '--selector=' + args.pod_selector, '--output', 'yaml']))
+            for item in podYaml['items']:
+                podName = item['metadata']['name']
+                subprocess.check_output(['kubectl', 'annotate', '--overwrite', 'pods/' + podName, 'access.control.version=' + provisionId])
+                time.sleep(1) # Give the pod some time to propagate
+                logging.debug('Annotated pod ' + podName)
+    setProvisionState(False, provisionId)
     return nextExpire
 
 nextRun = runProvision() # Initial provision
