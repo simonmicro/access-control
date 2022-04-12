@@ -5,7 +5,7 @@ description = ""
 authors = ["Simon Beginn <simon@simonmicro.de>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 fastapi = "^0.75.0"
 uvicorn = {extras = ["standard"], version = "^0.17.6"}
 python-multipart = "^0.0.5"
