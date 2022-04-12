@@ -14,11 +14,11 @@ export interface APIIP {
   name: string;
   ip: string;
   added: Date;
-  expires: Date;
+  expires: Date | null;
 }
 export interface APIProvision {
   state: boolean;
-  since: Date;
+  since: Date | null;
 }
 
 @Injectable({
@@ -268,7 +268,7 @@ export class APIService {
     for(let r of response)
       returnme.push({
         name: r.name,
-        expires: new Date(r.expires),
+        expires: r.expires !== null ? new Date(r.expires) : null,
         added: new Date(r.added),
         ip: r.ip
       });
