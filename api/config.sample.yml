@@ -2,7 +2,7 @@ general:
   ip_limit: 16
   expire_max: 86400 # 24h for all users
   ips:
-    192.168.0.1: Name
+    192.168.0.1: Demo IP
 
 scopes:
   example: # This will be used as filename (-> example.list)
