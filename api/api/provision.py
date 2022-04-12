@@ -8,6 +8,6 @@ def requestProvision(redisClient):
 def getProvisionState(redisClient) -> ProvisionInfo:
     s = redisClient.get('provision/state')
     if s is None:
-        return ProvisionInfo(id=None, state=False, since=None)
+        return ProvisionInfo(id=-1, state=False, since=None)
     s = json.loads(s)
     return ProvisionInfo(id=s['id'], state=s['state'], since=s['since'])
