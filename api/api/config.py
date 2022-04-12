@@ -65,13 +65,14 @@ def apply(redisHost: str, redisPort: int, yamlPath: str):
                 r.delete(keyPath)
     # Global IPs
     r.delete('ips/global')
-    for globalIP, globalIPName in general['ips'].items():
-        api.utils.validateIPv4(globalIP)
-        r.hset('ips/global', globalIP, json.dumps({
-            'name': globalIPName,
-            'added': str(datetime.datetime.now()),
-            'expire': None
-        }))
+    if isinstance(general['ips'], dict) and len(general['ips'].items()):
+        for globalIP, globalIPName in general['ips'].items():
+            api.utils.validateIPv4(globalIP)
+            r.hset('ips/global', globalIP, json.dumps({
+                'name': globalIPName,
+                'added': str(datetime.datetime.now()),
+                'expire': None
+            }))
     # Trigger instant provision
     api.provision.requestProvision(r)
-    logger.info(f'Applied {len(general["ips"].items())} global IPs, {len(config["scopes"])} scopes, {persistentKeysCount} persistent keys and {len(config["users"])} users.')
+    logger.info(f'Applied {len(general["ips"].items()) if isinstance(general["ips"], dict) else 0} global IPs, {len(config["scopes"])} scopes, {persistentKeysCount} persistent keys and {len(config["users"])} users.')
