@@ -13,7 +13,6 @@ import { Title } from '@angular/platform-browser';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  private expireInterval?: any;
   private userSubscription?: Subscription;
   title?: string;
   userIPs: APIIP[] = [];
@@ -34,15 +33,10 @@ export class DashboardComponent implements OnInit {
     this.api.getIPs(false).then(l => this.userIPs = l);
     this.api.getIPs(true).then(l => this.globalIPs = l);
     this.apiDocs = this.api.getDocsURI();
-    this.expireInterval = setInterval(() => {
-      this.userIPs = this.userIPs.filter(e => { return e.expires !== null ? e.expires > new Date() : true; });
-      this.globalIPs = this.globalIPs.filter(e => { return e.expires !== null ? e.expires > new Date() : true; });
-    }, 60 * 1000);
   }
 
   ngOnDestroy(): void {
     this.userSubscription!.unsubscribe();
-    clearInterval(this.expireInterval);
   }
 
   private userUpdate(u: APIUser) {
