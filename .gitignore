@@ -1,3 +1,4 @@
 redis
 *.code-workspace
 .vscode
+config.yml
