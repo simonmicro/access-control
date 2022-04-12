@@ -1,6 +1,7 @@
-FROM python:3.9
+FROM debian
+RUN apt-get update && apt-get install -y curl python3 python3-venv python3-pip
 WORKDIR /workspace
-RUN curl -sSL https://install.python-poetry.org | python - --version 1.1.13
+RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.1.13
 ENV PATH="/root/.local/bin:$PATH"
 COPY api .
 RUN poetry config virtualenvs.create false && poetry install --no-dev --no-interaction --no-ansi
