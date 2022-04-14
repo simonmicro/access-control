@@ -35,7 +35,8 @@ app = FastAPI(
     #description='_ToDo_...',
     version='0.0.1',
     redoc_url=None,
-    openapi_tags=tagsMetadata
+    openapi_tags=tagsMetadata,
+    root_path=os.environ.get('ROOT_PATH', '/')
 )
 app.add_middleware(
     CORSMiddleware,
