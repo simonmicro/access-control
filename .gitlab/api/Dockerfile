@@ -9,4 +9,4 @@ RUN poetry config virtualenvs.create false && poetry install --no-dev --no-inter
 ENV REDIS_HOST=127.0.0.1
 ENV REDIS_PORT=6379
 EXPOSE 80
-CMD poetry run uvicorn api:app --workers $(nproc) --host 0.0.0.0 --port 80 --no-server-header
+CMD poetry run uvicorn main:app --workers $(nproc) --host 0.0.0.0 --port 80 --no-server-header
