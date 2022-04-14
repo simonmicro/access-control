@@ -23,6 +23,10 @@ def handleHookedShutdown(*args, **kwargs):
     originalShutdown(*args, **kwargs)
 Server.handle_exit = handleHookedShutdown
 
+# The root path is need also for Swagger authentication, so it is not set using uvicorn parameters
+rootPath = os.environ.get('ROOT_PATH', '/')
+if not rootPath.endswith('/'):
+    rootPath += '/'
 class Tags(Enum):
     tokens = 'Tokens'
     ips = 'IPs'
@@ -36,7 +40,7 @@ app = FastAPI(
     version='0.0.1',
     redoc_url=None,
     openapi_tags=tagsMetadata,
-    root_path=os.environ.get('ROOT_PATH', '/')
+    root_path=rootPath
 )
 app.add_middleware(
     CORSMiddleware,
@@ -45,6 +49,7 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*'],
 )
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=rootPath + 'token/create/oauth2')
 
 def authorize(token: str):
     try:
@@ -58,7 +63,6 @@ def authorize(token: str):
 def bootupWorker():
     app.state.redisClient = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=os.environ.get('REDIS_PORT', 6379), db=0, decode_responses=True)
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token/create/oauth2")
 @app.post("/token/create/oauth2", tags=[Tags.tokens], summary='Create a new token using OAuth2')
 async def tokenCreateOAuth2(formData: OAuth2PasswordRequestForm = Depends()):
     try:
