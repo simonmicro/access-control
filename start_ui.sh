@@ -1,3 +1,3 @@
 #!/bin/bash
-cd angular-app
+cd dashboard
 npm run ng serve

@@ -1,6 +1,5 @@
 import asyncio
 import json
-import time
 from fastapi import FastAPI, HTTPException, Depends, Request, WebSocket, WebSocketDisconnect
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +9,7 @@ import api.config
 import api.utils
 import api.provision
 from api.models import *
-import datetime, random, redis, os, hashlib, string, threading
+import datetime, random, redis, os, hashlib, string
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
