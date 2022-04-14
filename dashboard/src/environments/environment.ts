@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   fakeAPI: false,
   urlAPI: 'http://localhost:8000/',
-  wsAPI: 'ws://localhost:8000/'
+  wsAPI: 'localhost:8000/' // Do not specify the protocol, it will be determined based on the windows protocol (HTTP vs HTTPS)
 };
 
 /*

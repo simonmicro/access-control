@@ -134,12 +134,13 @@ export class APIService {
     try {
       let c = (await this.request('get', 'token/info'))!;
       tokenInfo = {expires: new Date(c.expires), user: {name: c.user.name, limit: c.user.limit}}; // Parse only known fields into structure
-      if(this.ownToken) // In case the api somehow accepted a "null" token?! Do not save it.
+      if(this.ownToken) { // In case the api somehow accepted a "null" token?! Do not save it.
         localStorage.setItem(this.storageKeyName, this.ownToken); // Persist this known good token
         // Periodically check if the token is still valid
         this.ownTokenTimeout = setTimeout(() => {
           this.ownTokenInfo = this.validateOwnToken();
         }, 60 * 1000);
+      }
     } catch(e) {
       tokenInfo = null;
     }
@@ -161,7 +162,11 @@ export class APIService {
         return this.websocket;
       console.debug('Websocket enabled');
     }
-    let s = new WebSocket(environment.wsAPI + 'ws?token=' + this.ownToken);
+    // NEVER forget to specify the protocol, otherwise it won't work!
+    let wsProtocol = 'ws:';
+    if(window.location.protocol == 'https:')
+      wsProtocol = 'wss:';
+    let s = new WebSocket(wsProtocol + '//' + environment.wsAPI + 'ws?token=' + this.ownToken);
     s.onopen = evt => {
       this.websocketTimeout = 0; // Connection confirmed
     };
@@ -226,7 +231,7 @@ export class APIService {
       await this.ownTokenInfo; // If it fails, we fail too!
       this.websocket = this.enableWebsocket();
       return true;
-    } catch(error) {
+    } catch(e) {
       // Something is wrong with the token. Remove it!
       await this.setOwnToken(null);
       return false;
