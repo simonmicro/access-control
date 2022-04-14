@@ -30,7 +30,7 @@ def setProvisionState(state: bool, id: str):
         'since': str(datetime.datetime.now())
     }
     j = json.dumps(s)
-    redisClient.set('provision/state', j)
+    redisClient.set('provision/state', j, ex=datetime.timedelta(minutes=5)) # Expire after 5 minutes provision, as this indicates a crashed daemon
     redisClient.publish('provision/state', j)
     print(f'[{id}] {"Started" if state else "Finished"} provision at {datetime.datetime.now()}.')
 
