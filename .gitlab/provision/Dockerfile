@@ -9,7 +9,7 @@ RUN pip3 install -U setuptools pip
 WORKDIR /workspace
 RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.1.13
 ENV PATH="/.local/bin:$PATH"
-COPY api .
+COPY provision .
 RUN poetry config virtualenvs.create false && poetry install --no-dev --no-interaction --no-ansi
 
 ENV CONFIGMAP=nginx-config-geo-ips

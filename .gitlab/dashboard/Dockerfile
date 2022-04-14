@@ -1,6 +1,6 @@
 FROM node:lts-alpine as builder
 WORKDIR /workspace
-COPY angular-app .
+COPY dashboard .
 RUN npm install && npm run ng build -- --output-path dist
 
 

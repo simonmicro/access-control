@@ -1,3 +1,4 @@
 #!/bin/bash
 cd dashboard
-npm run ng serve
+npm install
+npm start

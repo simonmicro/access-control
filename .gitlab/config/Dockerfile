@@ -3,7 +3,7 @@ RUN apt-get update && apt-get install -y curl python3 python3-venv python3-pip
 WORKDIR /workspace
 RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.1.13
 ENV PATH="/root/.local/bin:$PATH"
-COPY api .
+COPY config .
 RUN poetry config virtualenvs.create false && poetry install --no-dev --no-interaction --no-ansi
 
 ENV CONFIG_PATH=/config.yml
