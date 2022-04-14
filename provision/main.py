@@ -1,4 +1,3 @@
-import os
 import json
 import time
 import yaml
@@ -51,8 +50,7 @@ def runProvision():
         scopeToIPs[scopeId] = set()
     # Run over every users ip
     nextExpire = None
-    for username, userStr in redisClient.hgetall('users').items():
-        userData = json.loads(userStr)
+    for username, _ in redisClient.hgetall('users').items():
         if username not in userToScope.keys():
             # Only remember ips if they are referenced in at least one scope
             continue
