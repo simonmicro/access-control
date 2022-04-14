@@ -12,6 +12,7 @@ ENV PATH="/.local/bin:$PATH"
 COPY provision .
 RUN poetry config virtualenvs.create false && poetry install --no-dev --no-interaction --no-ansi
 
+ENV PYTHONUNBUFFERED=1
 ENV CONFIGMAP=nginx-config-geo-ips
 ENV PODSELECTOR=app=nginx
 ENV REDIS_HOST=127.0.0.1
