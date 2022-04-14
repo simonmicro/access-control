@@ -16,4 +16,4 @@ ENV CONFIGMAP=nginx-config-geo-ips
 ENV PODSELECTOR=app=nginx
 ENV REDIS_HOST=127.0.0.1
 ENV REDIS_PORT=6379
-ENTRYPOINT poetry run python3 main_provision.py --redis_host $REDIS_HOST --redis_port $REDIS_PORT --configmap $CONFIGMAP --pod-selector=$PODSELECTOR
+ENTRYPOINT poetry run python3 main.py --redis_host $REDIS_HOST --redis_port $REDIS_PORT --configmap $CONFIGMAP --pod-selector=$PODSELECTOR
