@@ -6,6 +6,10 @@ ENV PATH="/root/.local/bin:$PATH"
 COPY config .
 RUN poetry config virtualenvs.create false && poetry install --no-dev --no-interaction --no-ansi
 
+# We are now fixing the symlink "api", as Docker does not resolve these
+COPY api/api /tmp/api
+RUN rm -r ./api; mv /tmp/api ./api
+
 ENV PYTHONUNBUFFERED=1
 ENV CONFIG_PATH=/config.yml
 ENV REDIS_HOST=127.0.0.1
