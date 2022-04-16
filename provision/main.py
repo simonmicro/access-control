@@ -3,6 +3,7 @@ import time
 import yaml
 import uuid
 import redis
+import random
 import logging
 import argparse
 import datetime
@@ -15,6 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--debug', action='store_true', help='Enable debug logging')
 parser.add_argument('--redis_host', type=str, required=True, help='Redis server hostname')
 parser.add_argument('--redis_port', type=int, default=6379, help='Redis server port')
+parser.add_argument('--dummy', action='store_true', help='Do not really provision, but instead just wait a while...')
 parser.add_argument('--configmap', type=str, required=True, help='Target configmap name')
 parser.add_argument('--pod-selector', type=str, help='Which pods should be annotated on configmap updates? Use e.g. "app=nginx"')
 args = parser.parse_args()
@@ -38,67 +40,74 @@ def runProvision():
     # NOTE: This is also used to remove any expired IPs from the users ips set
     provisionId = uuid.uuid4().hex
     setProvisionState(True, provisionId)
-    # Fetch current set of scopes
-    userToScope = {}
-    scopeToIPs = {}
-    for scopeId, scopeStr in redisClient.hgetall('scopes').items():
-        scopeData = json.loads(scopeStr)
-        for username in scopeData['users']:
+    if args.dummy:
+        waitTime = random.randint(4, 16)
+        nextTime = random.randint(2, 6)
+        print(f'Dummy provision for {waitTime} seconds - after that next will be in {nextTime} minutes...')
+        time.sleep(waitTime)
+        nextExpire = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=nextTime)
+    else:
+        # Fetch current set of scopes
+        userToScope = {}
+        scopeToIPs = {}
+        for scopeId, scopeStr in redisClient.hgetall('scopes').items():
+            scopeData = json.loads(scopeStr)
+            for username in scopeData['users']:
+                if username not in userToScope.keys():
+                    userToScope[username] = set()
+                userToScope[username].add(scopeId)
+            scopeToIPs[scopeId] = set()
+        # Run over every users ip
+        nextExpire = None
+        for username, _ in redisClient.hgetall('users').items():
             if username not in userToScope.keys():
-                userToScope[username] = set()
-            userToScope[username].add(scopeId)
-        scopeToIPs[scopeId] = set()
-    # Run over every users ip
-    nextExpire = None
-    for username, _ in redisClient.hgetall('users').items():
-        if username not in userToScope.keys():
-            # Only remember ips if they are referenced in at least one scope
-            continue
-        for ip, ipStr in redisClient.hgetall('ips/' + username).items():
+                # Only remember ips if they are referenced in at least one scope
+                continue
+            for ip, ipStr in redisClient.hgetall('ips/' + username).items():
+                ipData = json.loads(ipStr)
+                if ipData['expire'] is not None:
+                    expireOn = datetime.datetime.fromisoformat(ipData['expire'])
+                    if expireOn < datetime.datetime.now(datetime.timezone.utc):
+                        redisClient.hdel('ips/' + username, ip)
+                        continue
+                    if nextExpire is None or expireOn < nextExpire:
+                        nextExpire = expireOn
+                for scopeId in userToScope[username]:
+                    scopeToIPs[scopeId].add(ipaddress.IPv4Address(ip))
+        # Fetch the global ips and add them to all scopes
+        for ip, ipStr in redisClient.hgetall('ips/global').items():
             ipData = json.loads(ipStr)
-            if ipData['expire'] is not None:
-                expireOn = datetime.datetime.fromisoformat(ipData['expire'])
-                if expireOn < datetime.datetime.now(datetime.timezone.utc):
-                    redisClient.hdel('ips/' + username, ip)
-                    continue
-                if nextExpire is None or expireOn < nextExpire:
-                    nextExpire = expireOn
-            for scopeId in userToScope[username]:
+            for scopeId in scopeToIPs.keys():
                 scopeToIPs[scopeId].add(ipaddress.IPv4Address(ip))
-    # Fetch the global ips and add them to all scopes
-    for ip, ipStr in redisClient.hgetall('ips/global').items():
-        ipData = json.loads(ipStr)
-        for scopeId in scopeToIPs.keys():
-            scopeToIPs[scopeId].add(ipaddress.IPv4Address(ip))
-    with tempfile.NamedTemporaryFile('w', suffix='.yaml') as tempYaml:
-        # Create ip lists
-        configDict = {}
-        for scope, ips in scopeToIPs.items():
-            scopeFilename = scope + '.list'
-            configDict[scopeFilename] = 'default 0;\n'
-            for ip in ips:
-                configDict[scopeFilename] += str(ip) + ' 1;\n'
-        outStr = yaml.dump({
-            'apiVersion': 'v1',
-            'kind': 'ConfigMap',
-            'metadata': { 'name': args.configmap },
-            'data': configDict
-        })
-        logging.debug(outStr)
-        tempYaml.write(outStr)
-        tempYaml.flush()
-        # Apply new ConfigMaps
-        subprocess.check_output(['kubectl', 'replace', '-f', tempYaml.name])
-        logging.debug('Replaced configmap ' + args.configmap)
-        time.sleep(1) # Give the configmap some time to propagate
-        if args.pod_selector is not None:
-            # Annotate all nginx pods to force instant rollout
-            podYaml = yaml.safe_load(subprocess.check_output(['kubectl', 'get', 'pods', '--selector=' + args.pod_selector, '--output', 'yaml']))
-            for item in podYaml['items']:
-                podName = item['metadata']['name']
-                subprocess.check_output(['kubectl', 'annotate', '--overwrite', 'pods/' + podName, 'access.control.version=' + provisionId])
-                time.sleep(1) # Give the pod some time to propagate
-                logging.debug('Annotated pod ' + podName)
+        with tempfile.NamedTemporaryFile('w', suffix='.yaml') as tempYaml:
+            # Create ip lists
+            configDict = {}
+            for scope, ips in scopeToIPs.items():
+                scopeFilename = scope + '.list'
+                configDict[scopeFilename] = 'default 0;\n'
+                for ip in ips:
+                    configDict[scopeFilename] += str(ip) + ' 1;\n'
+            outStr = yaml.dump({
+                'apiVersion': 'v1',
+                'kind': 'ConfigMap',
+                'metadata': { 'name': args.configmap },
+                'data': configDict
+            })
+            logging.debug(outStr)
+            tempYaml.write(outStr)
+            tempYaml.flush()
+            # Apply new ConfigMaps
+            subprocess.check_output(['kubectl', 'replace', '-f', tempYaml.name])
+            logging.debug('Replaced configmap ' + args.configmap)
+            time.sleep(1) # Give the configmap some time to propagate
+            if args.pod_selector is not None:
+                # Annotate all nginx pods to force instant rollout
+                podYaml = yaml.safe_load(subprocess.check_output(['kubectl', 'get', 'pods', '--selector=' + args.pod_selector, '--output', 'yaml']))
+                for item in podYaml['items']:
+                    podName = item['metadata']['name']
+                    subprocess.check_output(['kubectl', 'annotate', '--overwrite', 'pods/' + podName, 'access.control.version=' + provisionId])
+                    time.sleep(1) # Give the pod some time to propagate
+                    logging.debug('Annotated pod ' + podName)
     setProvisionState(False, provisionId)
     return nextExpire
 
