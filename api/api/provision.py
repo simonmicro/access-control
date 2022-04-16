@@ -3,7 +3,7 @@ import json
 from api.models import ProvisionInfo
 
 def requestProvision(redisClient):
-    redisClient.publish('provision/start', str(datetime.datetime.now()))
+    redisClient.publish('provision/start', str(datetime.datetime.now(datetime.timezone.utc)))
 
 def getProvisionState(redisClient) -> ProvisionInfo:
     s = redisClient.get('provision/state')

@@ -79,7 +79,7 @@ async def tokenCreateOAuth2(formData: OAuth2PasswordRequestForm = Depends()):
     key = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(32))
     app.state.redisClient.set('keys/' + key, json.dumps({
         'username': formData.username,
-        'expire': str(datetime.datetime.now() + datetime.timedelta(hours=24))
+        'expire': str(datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=24))
     }), ex=datetime.timedelta(hours=24))
     return OAuth2Login(access_token=key)
 
@@ -123,7 +123,7 @@ async def ipAdd(ip: str, name: str, token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=400, detail='IP would violate users IP limit')
     if app.state.redisClient.hget('ips/' + tokenInfo['username'], str(parsedIP)) is not None:
         raise HTTPException(status_code=400, detail='Duplicate IP')
-    added = datetime.datetime.now()
+    added = datetime.datetime.now(datetime.timezone.utc)
     timeout = datetime.timedelta(seconds=userInfo['expire_max'])
     expires = added + timeout
     app.state.redisClient.hset('ips/' + tokenInfo['username'], str(parsedIP), json.dumps({
@@ -199,9 +199,9 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
     sub.subscribe('provision/state')
     loopEvery = 0.1
     reauthEvery = 30 # ...seconds
-    reauthNext = datetime.datetime.now()
+    reauthNext = datetime.datetime.now(datetime.timezone.utc)
     pingEvery = 10 # ...seconds
-    pingNext = datetime.datetime.now()
+    pingNext = datetime.datetime.now(datetime.timezone.utc)
     while not workerShutdownRequested:
         # Send out new provision state
         msg = sub.get_message()
@@ -213,20 +213,20 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
                 break # ANY error will trigger us to give up the websocket!
         # Reauth?
         await asyncio.sleep(loopEvery)
-        if datetime.datetime.now() > reauthNext:
+        if datetime.datetime.now(datetime.timezone.utc) > reauthNext:
             if app.state.redisClient.get('keys/' + token) is None:
                 # Check if the token is still valid, if not close the connection
                 logger.info(f'Websocket {websocketId} disconnected by deleted token.')
                 break
-            reauthNext = datetime.datetime.now() + datetime.timedelta(seconds=reauthEvery)
-        if datetime.datetime.now() > pingNext:
+            reauthNext = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=reauthEvery)
+        if datetime.datetime.now(datetime.timezone.utc) > pingNext:
             # Ping if needed
             try:
                 await websocket.send_text('ping')
             except:
                 logger.info(f'Websocket {websocketId} disconnected by missed ping.')
                 break # ANY error will trigger us to give up the websocket!
-            pingNext = datetime.datetime.now() + datetime.timedelta(seconds=pingEvery)
+            pingNext = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=pingEvery)
     try:
         await websocket.close()
     except:

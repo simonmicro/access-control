@@ -71,7 +71,7 @@ def apply(redisHost: str, redisPort: int, yamlPath: str):
             api.utils.validateIPv4(globalIP)
             r.hset('ips/global', globalIP, json.dumps({
                 'name': globalIPName,
-                'added': str(datetime.datetime.now()),
+                'added': str(datetime.datetime.now(datetime.timezone.utc)),
                 'expire': None
             }))
     # Trigger instant provision

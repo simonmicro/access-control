@@ -26,12 +26,12 @@ def setProvisionState(state: bool, id: str):
     s = {
         'id': id,
         'state': state,
-        'since': str(datetime.datetime.now())
+        'since': str(datetime.datetime.now(datetime.timezone.utc))
     }
     j = json.dumps(s)
     redisClient.set('provision/state', j, ex=datetime.timedelta(minutes=5)) # Expire after 5 minutes provision, as this indicates a crashed daemon
     redisClient.publish('provision/state', j)
-    print(f'[{id}] {"Started" if state else "Finished"} provision at {datetime.datetime.now()}.')
+    print(f'[{id}] {"Started" if state else "Finished"} provision at {datetime.datetime.now(datetime.timezone.utc)}.')
 
 def runProvision():
     global redisClient
@@ -58,7 +58,7 @@ def runProvision():
             ipData = json.loads(ipStr)
             if ipData['expire'] is not None:
                 expireOn = datetime.datetime.fromisoformat(ipData['expire'])
-                if expireOn < datetime.datetime.now():
+                if expireOn < datetime.datetime.now(datetime.timezone.utc):
                     redisClient.hdel(keyPath, ip)
                     continue
                 if nextExpire is None or expireOn < nextExpire:
@@ -112,6 +112,6 @@ while True:
     if message is not None:
         nextRun = runProvision()
     # Or on next scheduled run
-    if nextRun is not None and nextRun < datetime.datetime.now():
+    if nextRun is not None and nextRun < datetime.datetime.now(datetime.timezone.utc):
         nextRun = runProvision()
     time.sleep(1)

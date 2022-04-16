@@ -36,10 +36,10 @@ debugDatabaseDump()
 inotify = INotify()
 watch_flags = flags.CREATE | flags.MODIFY | flags.CLOSE_WRITE | flags.DELETE | flags.MOVE_SELF
 inotify.add_watch(os.path.dirname(os.path.abspath(args.config)), watch_flags)
-cooldown = datetime.datetime.now()
+cooldown = datetime.datetime.now(datetime.timezone.utc)
 while True:
     for event in inotify.read():
-        if datetime.datetime.now() > cooldown:
+        if datetime.datetime.now(datetime.timezone.utc) > cooldown:
             api.config.apply(args.redis_host, args.redis_port, args.config)
             debugDatabaseDump()
-        cooldown = datetime.datetime.now() + datetime.timedelta(seconds=2)
+        cooldown = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=2)
