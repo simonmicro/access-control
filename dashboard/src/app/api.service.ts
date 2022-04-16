@@ -162,11 +162,7 @@ export class APIService {
         return this.websocket;
       console.debug('Websocket enabled');
     }
-    // NEVER forget to specify the protocol, otherwise it won't work!
-    let wsProtocol = 'ws:';
-    if(window.location.protocol == 'https:')
-      wsProtocol = 'wss:';
-    let s = new WebSocket(wsProtocol + '//' + environment.wsAPI + 'ws?token=' + this.ownToken);
+    let s = new WebSocket(environment.wsAPI + 'ws?token=' + this.ownToken);
     s.onopen = evt => {
       this.websocketTimeout = 0; // Connection confirmed
     };
