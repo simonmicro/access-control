@@ -59,7 +59,7 @@ def runProvision():
             if ipData['expire'] is not None:
                 expireOn = datetime.datetime.fromisoformat(ipData['expire'])
                 if expireOn < datetime.datetime.now(datetime.timezone.utc):
-                    redisClient.hdel(keyPath, ip)
+                    redisClient.hdel('ips/' + username, ip)
                     continue
                 if nextExpire is None or expireOn < nextExpire:
                     nextExpire = expireOn
