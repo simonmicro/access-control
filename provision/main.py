@@ -41,7 +41,7 @@ def runProvision():
     provisionId = uuid.uuid4().hex
     setProvisionState(True, provisionId)
     if args.dummy:
-        waitTime = random.randint(4, 16)
+        waitTime = random.randint(8, 16)
         nextTime = random.randint(2, 6)
         print(f'Dummy provision for {waitTime} seconds - after that next will be in {nextTime} minutes...')
         time.sleep(waitTime)
