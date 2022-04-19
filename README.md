@@ -29,7 +29,47 @@ You then have to expose the `dashboard` and `api` services to the _users_ by e.g
 **Rate limits** are strongly recommended to add an additional layer of security to your api endpoint! Here is an example for a Nginx configuration of the `dashboard` with the `api` service mapped to `/api`:
 
 ```nginx
-TODO
+limit_req_zone $binary_remote_addr zone=access_api_limit:10m rate=16r/m;
+
+server {
+    listen 443 ssl;
+    server_name access-control.example.com;
+
+    ssl_certificate ...;
+    ssl_certificate_key ...;
+
+    location / {
+        set $endpoint dashboard-service.default.svc.cluster.local;
+        resolver kube-dns.kube-system.svc.cluster.local;
+        proxy_pass http://$endpoint;
+    }
+
+    location /api/ {
+        # -> https://stackoverflow.com/a/33325584
+        rewrite ^/api/(.*) /$1  break;
+        resolver kube-dns.kube-system.svc.cluster.local;
+        proxy_pass http://api-service.default.svc.cluster.local$uri$is_args$args;
+        # Limit interaction to the API
+        limit_req zone=access_api_limit burst=32 nodelay;
+        limit_req_status 429;
+        # Inform target host about proxy client...
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP  $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Protocol $scheme;
+        proxy_set_header X-Forwarded-Host $http_host;
+        # Support WebSocket connections...
+        proxy_http_version 1.1; # Default is 1.0
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        # Wait for x seconds for the uplink...
+        proxy_connect_timeout 1d; # Keep websockets alive!
+        proxy_send_timeout 1d; # Keep websockets alive!
+        proxy_read_timeout 1d; # Keep websockets alive!
+        send_timeout 10;
+    }
+}
 ```
 
 ### Configure your Nginx
@@ -37,10 +77,64 @@ The `provision` service of this project is compartible with Nginx and its `geo_i
 
 Nginx with a sidecar for automatic reloads:
 ```yaml
-TODO
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      shareProcessNamespace: true # Required for sending the reload signal to Nginx
+      containers:
+      - name: config-reloader
+        image: realsimonmicro/debian-inotifywait
+        # Do NOT listen to all events, otherwise you will get stuck in a loop (because NGINX will trigger "close" after reading them with "access").
+        args: ["-c", "echo 'Ready to go!'; inotifywait -e modify -e create -e modify -e delete -m -q -r --format '%w%f' '/geo_ips/' | while read -r path; do echo \"$(date): $path changed!\"; echo \"\tSkipping $(timeout 3 cat | wc -l) further changes...\"; kill -s HUP $(pgrep -o nginx); done"]
+        volumeMounts:
+        - name: nginx-config-geo-ips-volume
+          mountPath: /geo_ips/
+          readOnly: true
+      - name: nginx
+        image: nginx
+        volumeMounts:
+        - name: nginx-config-geo-ips-volume
+          mountPath: /geo_ips/
+          readOnly: true
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+      volumes:
+      - name: nginx-config-geo-ips-volume
+        configMap:
+          name: nginx-config-geo-ips
 ```
 
-Nginx configuration for `geo_ip` lists from an other path:
+Nginx configuration for `geo_ip` lists from `/geo_ips/dummy.list`:
 ```nginx
-TODO
+geo $dummy_list {
+    include /geo_ips/dummy.list;
+}
+
+server {
+    listen 443 ssl;
+    server_name service.example.com;
+
+    ssl_certificate ...;
+    ssl_certificate_key ...;
+
+    location / {
+        if ($dummy_list = 1) {
+            root /success;
+        }
+        if ($dummy_list != 1) {
+            root /failure;
+        }
+    }
+}
 ```
