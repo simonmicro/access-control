@@ -11,5 +11,8 @@
             [placeholder]="publicIP!">
     </mat-form-field>
     <br>
-    <button mat-flat-button color="primary" type="submit" [disabled]="!ipForm.valid">Add</button>
+    <span>
+        <button mat-button color="primary" type="button" *ngIf="publicIP" (click)="onDirect()">Use {{publicIP}}</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="!ipForm.valid">Add</button>
+    </span>
 </form>

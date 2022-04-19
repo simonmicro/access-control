@@ -23,8 +23,15 @@ export class IpAssistantComponent implements OnInit {
     this.publicIP = await this.api.getPublicIP();
   }
 
-  async onSubmit(): Promise<void> {
-    this.dialogRef.close({ip: this.ipForm.value.ip, name: this.ipForm.value.name});
+  onSubmit(): void {
+    this.resolve(this.ipForm.value.ip, this.ipForm.value.name);
   }
 
+  onDirect(): void {
+    this.resolve(this.publicIP!, this.ipForm.value.name != '' ? this.ipForm.value.name : 'Public IP');
+  }
+
+  resolve(ip: string, name: string): void {
+    this.dialogRef.close({ip: ip, name: name});
+  }
 }
