@@ -105,6 +105,8 @@ async def tokenDelete(token: str = Depends(oauth2_scheme)):
 @app.post("/ip/add", tags=[Tags.ips], summary='Add a new IPv4', response_model=IP)
 async def ipAdd(ip: str, name: str, token: str = Depends(oauth2_scheme)):
     authorize(token)
+    if len(name) < 4 or len(name) > 32:
+        raise HTTPException(status_code=400, detail='Invalid name')
     try:
         parsedIP = api.utils.validateIPv4(ip)
     except RuntimeError:
