@@ -28,7 +28,7 @@ export class IpAssistantComponent implements OnInit {
   }
 
   onDirect(): void {
-    this.resolve(this.publicIP!, this.ipForm.value.name != '' ? this.ipForm.value.name : 'Public IP');
+    this.resolve(this.publicIP!, this.ipForm.value.name ? this.ipForm.value.name : 'Public IP');
   }
 
   resolve(ip: string, name: string): void {
