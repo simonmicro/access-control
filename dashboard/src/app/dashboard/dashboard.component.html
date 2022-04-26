@@ -1,11 +1,10 @@
 <mat-toolbar id="toolbar" color="primary">
-    <button type="button" mat-button (click)="drawer.toggle()"><mat-icon>menu</mat-icon></button>
+    <button type="button" mat-button (click)="drawer.toggle()">
+        <mat-icon>menu</mat-icon>
+    </button>
     <span>{{ title }}</span>
     <span class="flex-expand"></span>
     <app-debug-menu></app-debug-menu>
-    <a mat-icon-button [href]="apiDocs" target="_blank">
-        <mat-icon>api</mat-icon>
-    </a>
     <button mat-icon-button (click)="logout()">
         <mat-icon>logout</mat-icon>
     </button>
@@ -14,7 +13,23 @@
 
 <mat-drawer-container class="flex-expand">
     <mat-drawer #drawer mode="side">
-        <p>Placeholder :P</p>
+        <mat-nav-list>
+            <p><a mat-list-item [href]="apiDocs" target="_blank"><mat-icon>api</mat-icon><span class="nav-icon-space"></span> API</a></p>
+            <!--<a mat-list-item [routerLink]="'/path'">Dummy</a>-->
+        </mat-nav-list>
+        <mat-divider></mat-divider>
+        <span class="transparent-until-hover">
+            <p>Service Versions</p>
+            <mat-divider></mat-divider>
+            <app-service-indicator scope="dashboard" display="Dashboard"></app-service-indicator>
+            <mat-divider></mat-divider>
+            <app-service-indicator scope="api" display="API"></app-service-indicator>
+            <mat-divider></mat-divider>
+            <app-service-indicator scope="config" display="Configurator"></app-service-indicator>
+            <mat-divider></mat-divider>
+            <app-service-indicator scope="provision" display="Provisionier"></app-service-indicator>
+            <mat-divider></mat-divider>
+        </span>
     </mat-drawer>
 
     <mat-drawer-content id="content">

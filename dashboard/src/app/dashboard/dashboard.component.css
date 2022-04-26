@@ -26,3 +26,16 @@
     right: 2em;
     margin-left: auto;
 }
+
+span.nav-icon-space {
+    width: 1em;
+}
+
+span.transparent-until-hover {
+    transition: opacity 1s;
+    opacity: 0.6;
+}
+
+span.transparent-until-hover:hover {
+    opacity: 1;
+}

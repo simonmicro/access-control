@@ -20,6 +20,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialogModule } from '@angular/material/dialog'; 
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatSidenavModule } from '@angular/material/sidenav'; 
+import { MatListModule } from '@angular/material/list';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -32,6 +33,7 @@ import { DebugMenuComponent } from './debug-menu/debug-menu.component';
 import { Error404Component } from './error404/error404.component';
 import { IpAssistantComponent } from './dashboard/ip-assistant/ip-assistant.component';
 import { ProvisionIndicatorComponent } from './dashboard/provision-indicator/provision-indicator.component';
+import { ServiceIndicatorComponent } from './dashboard/service-indicator/service-indicator.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +45,8 @@ import { ProvisionIndicatorComponent } from './dashboard/provision-indicator/pro
     DebugMenuComponent,
     Error404Component,
     IpAssistantComponent,
-    ProvisionIndicatorComponent
+    ProvisionIndicatorComponent,
+    ServiceIndicatorComponent
   ],
   imports: [
     FormsModule,
@@ -68,7 +71,8 @@ import { ProvisionIndicatorComponent } from './dashboard/provision-indicator/pro
     MatProgressBarModule,
     MatDialogModule,
     MatStepperModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatListModule
   ],
   providers: [
     {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 2500, horizontalPosition: 'left'}}
