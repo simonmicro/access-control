@@ -1,19 +1,23 @@
-<div>
-    <mat-toolbar color="primary">
-        <span>{{ title }}</span>
-        <span>
-            <app-debug-menu></app-debug-menu>
-            <a mat-icon-button [href]="apiDocs" target="_blank">
-                <mat-icon>api</mat-icon>
-            </a>
-            <button mat-icon-button (click)="logout()">
-                <mat-icon>logout</mat-icon>
-            </button>
-        </span>
-    </mat-toolbar>
-    <mat-progress-bar *ngIf="api.loading" mode="indeterminate"></mat-progress-bar>
-    
-    <div>
+<mat-toolbar id="toolbar" color="primary">
+    <button type="button" mat-button (click)="drawer.toggle()"><mat-icon>menu</mat-icon></button>
+    <span>{{ title }}</span>
+    <span class="flex-expand"></span>
+    <app-debug-menu></app-debug-menu>
+    <a mat-icon-button [href]="apiDocs" target="_blank">
+        <mat-icon>api</mat-icon>
+    </a>
+    <button mat-icon-button (click)="logout()">
+        <mat-icon>logout</mat-icon>
+    </button>
+</mat-toolbar>
+<mat-progress-bar *ngIf="api.loading" mode="indeterminate"></mat-progress-bar>
+
+<mat-drawer-container class="flex-expand">
+    <mat-drawer #drawer mode="side">
+        <p>Placeholder :P</p>
+    </mat-drawer>
+
+    <mat-drawer-content id="content">
         <app-provision-indicator></app-provision-indicator>
 
         <mat-accordion>
@@ -38,9 +42,11 @@
                 <app-ip-table [data]="globalIPs" [ro]="true"></app-ip-table>
             </mat-expansion-panel>
         </mat-accordion>
-    </div>
 
-    <button mat-fab *ngIf="userIPs.length < userIPsMax" (click)="openIPAssistant()">
-        <mat-icon>add</mat-icon>
-    </button>
-</div>
+        <span class="flex-expand"></span>
+
+        <button id="addbtn" mat-fab *ngIf="userIPs.length < userIPsMax" (click)="openIPAssistant()">
+            <mat-icon>add</mat-icon>
+        </button>
+    </mat-drawer-content>
+</mat-drawer-container>
