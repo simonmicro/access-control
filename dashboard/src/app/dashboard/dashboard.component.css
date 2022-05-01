@@ -43,3 +43,13 @@ span.transparent-until-hover {
 span.transparent-until-hover:hover {
     opacity: 1;
 }
+
+.sidenav-text {
+    margin: 0.5em;
+}
+
+mat-nav-list {
+    /* Fix that strange alignment issue */
+    margin: 0;
+    padding: 0;
+}
