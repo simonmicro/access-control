@@ -8,6 +8,7 @@ from uvicorn.main import Server # Used for shutdown hooks
 import api.config
 import api.utils
 import api.provision
+import api.version
 from api.models import *
 import datetime, random, redis, os, hashlib, string
 import logging
@@ -234,3 +235,14 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
     except:
         # Maybe the websocket is already closed / broken
         pass
+
+@app.get("/version/{service}", summary='Get the version number of a service', response_model=VersionInfo)
+async def versionScope(service: str, token: str = Depends(oauth2_scheme)):
+    authorize(token)
+    if service not in ['api', 'config', 'provision']:
+        raise HTTPException(status_code=404, detail='Service not found')
+    if service == 'api':
+        return VersionInfo(healthy=True, version=api.version.getOwnVersion())
+    else:
+        version = api.version.getOtherVersion(app.state.redisClient, service)
+        return VersionInfo(healthy=version is not None, version=version)

@@ -29,3 +29,7 @@ class ProvisionInfo(BaseModel):
 class OAuth2Login(BaseModel):
     access_token: str
     token_type: datetime.datetime = 'bearer'
+
+class VersionInfo(BaseModel):
+    healthy: bool
+    version: Optional[str]

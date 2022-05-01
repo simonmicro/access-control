@@ -6,6 +6,10 @@ ENV PATH="/root/.local/bin:$PATH"
 COPY api .
 RUN poetry config virtualenvs.create false && poetry install --no-dev --no-interaction --no-ansi
 
+# Now insert the current version from the build arguments
+ARG VERSION=unknown
+RUN echo $VERSION > /VERSION
+
 ENV PYTHONUNBUFFERED=1
 ENV REDIS_HOST=127.0.0.1
 ENV REDIS_PORT=6379

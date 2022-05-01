@@ -1,25 +1,55 @@
-:host > div {
+:host {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    height: 100%;
     justify-content: flex-start;
 }
 
-:host > div > mat-toolbar {
+#toolbar {
+    flex-shrink: 0; /* Never allow the toolbar to shrink */
     display: flex;
-    justify-content: space-between;
-    flex-shrink: 0;
 }
 
-:host > div > button {
+#toolbar-btn {
+    margin-right: 1em;
+}
+
+.flex-expand {
+    flex-grow: 1;
+}
+
+#content {
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+}
+
+#addbtn {
     position: sticky;
-    left: unset;
-    bottom: 2em;
+    bottom: calc(2em + 1em); /* +1em due to the padding of the wrapper */
     right: 2em;
-    align-self: flex-end;
+    margin-left: auto;
 }
 
-:host > div > div {
-    margin: 1em;
-    height: 100%;
+span.nav-icon-space {
+    width: 1em;
+}
+
+span.transparent-until-hover {
+    transition: opacity 1s;
+    opacity: 0.6;
+}
+
+span.transparent-until-hover:hover {
+    opacity: 1;
+}
+
+.sidenav-text {
+    margin: 0.5em;
+}
+
+mat-nav-list {
+    /* Fix that strange alignment issue */
+    margin: 0;
+    padding: 0;
 }

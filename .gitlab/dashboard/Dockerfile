@@ -1,6 +1,11 @@
 FROM node:lts-alpine as builder
 WORKDIR /workspace
 COPY dashboard .
+
+# Now insert the current version from the build arguments
+ARG VERSION=unknown
+RUN sed -i 's/release/$VERSION/g' src/environments/environment.prod.ts
+
 RUN npm install && npm run ng build -- --output-path dist
 
 

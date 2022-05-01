@@ -21,6 +21,11 @@ export interface APIProvision {
   since: Date | null;
 }
 
+export interface APIVersionInfo {
+  healthy: boolean;
+  version: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -290,6 +295,12 @@ export class APIService {
 
   async getProvision(): Promise<APIProvision> {
     return this.request('get', 'provision/state', null, null, true);
+  }
+
+  async getVersionInfo(name: string): Promise<APIVersionInfo> {
+    if(name === 'dashboard')
+      return {healthy: true, version: environment.version};
+    return this.request('get', 'version/' + name);
   }
 
   subscribeToProvision(next?: (value: any) => void, error?: (error: any) => void, complete?: () => void): Subscription {

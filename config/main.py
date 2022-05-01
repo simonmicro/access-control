@@ -4,6 +4,7 @@ import logging
 import argparse
 import datetime
 import api.config
+import api.version
 from inotify_simple import INotify, flags
 
 # Parse args
@@ -14,6 +15,8 @@ parser.add_argument('--redis_host', type=str, required=True, help='Redis server 
 parser.add_argument('--redis_port', type=int, default=6379, help='Redis server port')
 args = parser.parse_args()
 logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+
+api.version.heartbeatMyVersion(args.redis_host, args.redis_port, 'config')
 
 # Debug dump
 def debugDatabaseDump():

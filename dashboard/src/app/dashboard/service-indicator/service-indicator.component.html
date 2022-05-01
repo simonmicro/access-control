@@ -1,0 +1,7 @@
+<div class="healthIcon" [ngClass]="{'healthy' : healthy === true, 'unhealthy' : healthy === false}">
+    <mat-spinner *ngIf="healthy === null" [diameter]="16"></mat-spinner>
+</div>
+<div class="healthText">
+    <span class="mat-caption"><b>{{ display }} ({{ scope }})</b></span>
+    <span class="mat-caption">{{ info?.version }}</span>
+</div>

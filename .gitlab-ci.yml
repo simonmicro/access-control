@@ -10,7 +10,9 @@ dashboard:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/.gitlab/dashboard/Dockerfile" --destination "${CI_REGISTRY_IMAGE}/dashboard:latest"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/.gitlab/dashboard/Dockerfile" --destination "${CI_REGISTRY_IMAGE}/dashboard:latest" --build-arg "VERSION=$CI_COMMIT_SHORT_SHA"
+  only:
+    - master
 
 api:
   stage: build
@@ -21,7 +23,9 @@ api:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/.gitlab/api/Dockerfile" --destination "${CI_REGISTRY_IMAGE}/api:latest"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/.gitlab/api/Dockerfile" --destination "${CI_REGISTRY_IMAGE}/api:latest" --build-arg "VERSION=$CI_COMMIT_SHORT_SHA"
+  only:
+    - master
 
 config:
   stage: build
@@ -32,7 +36,9 @@ config:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/.gitlab/config/Dockerfile" --destination "${CI_REGISTRY_IMAGE}/config:latest"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/.gitlab/config/Dockerfile" --destination "${CI_REGISTRY_IMAGE}/config:latest" --build-arg "VERSION=$CI_COMMIT_SHORT_SHA"
+  only:
+    - master
 
 provision:
   stage: build
@@ -43,4 +49,6 @@ provision:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/.gitlab/provision/Dockerfile" --destination "${CI_REGISTRY_IMAGE}/provision:latest"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/.gitlab/provision/Dockerfile" --destination "${CI_REGISTRY_IMAGE}/provision:latest" --build-arg "VERSION=$CI_COMMIT_SHORT_SHA"
+  only:
+    - master
