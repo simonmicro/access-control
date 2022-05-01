@@ -29,7 +29,7 @@ You then have to expose the `dashboard` and `api` services to the _users_ by e.g
 **Rate limits** are strongly recommended to add an additional layer of security to your api endpoint! Here is an example for a Nginx configuration of the `dashboard` with the `api` service mapped to `/api`:
 
 ```nginx
-limit_req_zone $binary_remote_addr zone=access_api_limit:10m rate=16r/m;
+limit_req_zone $binary_remote_addr zone=access_api_limit:10m rate=24r/m;
 
 server {
     listen 443 ssl;
