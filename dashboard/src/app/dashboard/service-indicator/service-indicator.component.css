@@ -4,7 +4,7 @@
     justify-content: space-evenly;
     align-items: center;
     flex-wrap: nowrap;
-    padding: 0 0.5em;
+    padding: 0 1em;
 }
 
 div.healthIcon {
@@ -13,7 +13,7 @@ div.healthIcon {
     display: inline-block;
     width: 1em;
     height: 1em;
-    margin: 0.5em 0.5em 0.5em 0;
+    margin: 1em 1em 1em 0;
 }
 
 div.healthIcon::before, div.healthIcon::after {
@@ -25,7 +25,7 @@ div.healthIcon::before, div.healthIcon::after {
 }
 
 div.healthIcon::before {
-    transform: translate(50%, -50%);
+    transform: translate(50%, -50%) scale(1.5);
 }
 
 div.healthIcon.healthy::after {
@@ -44,15 +44,15 @@ div.healthIcon.healthy::before, div.healthIcon.healthy::after {
 @keyframes heartbeat {
     0% {
         opacity: 0.8;
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, -50%) scale(1.5);
     }
     60% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(3);
+        transform: translate(-50%, -50%) scale(4);
     }
     100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(3);
+        transform: translate(-50%, -50%) scale(4);
     }
 }
 
