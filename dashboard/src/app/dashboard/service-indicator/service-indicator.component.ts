@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { APIService, APIVersionInfo } from 'src/app/api.service';
 
 @Component({
   selector: 'app-service-indicator',
@@ -8,10 +9,18 @@ import { Component, OnInit, Input } from '@angular/core';
 export class ServiceIndicatorComponent implements OnInit {
   @Input() scope: string = 'undefined';
   @Input() display: string = 'Undefined';
+  healthy: boolean | null = null;
+  info: APIVersionInfo | null = null;
 
-  constructor() { }
+  constructor(private apiSvc: APIService) { }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    try {
+      this.info = await this.apiSvc.getVersionInfo(this.scope);
+      this.healthy = true;
+    } catch(e) {
+      this.healthy = false;
+    }
   }
 
 }

@@ -6,7 +6,8 @@ export const environment = {
   production: false,
   fakeAPI: false,
   urlAPI: 'http://localhost:8000/',
-  wsAPI:  'ws://localhost:8000/'
+  wsAPI: 'ws://localhost:8000/',
+  version: 'development'
 };
 
 /*
