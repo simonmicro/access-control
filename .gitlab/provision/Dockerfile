@@ -16,6 +16,10 @@ RUN poetry config virtualenvs.create false && poetry install --no-dev --no-inter
 COPY api/api /tmp/api
 RUN rm -r ./api; mv /tmp/api ./api
 
+# Now insert the current version from the build arguments
+ARG VERSION=unknown
+RUN echo $VERSION > /VERSION
+
 ENV PYTHONUNBUFFERED=1
 ENV CONFIGMAP=nginx-config-geo-ips
 ENV PODSELECTOR=app=nginx

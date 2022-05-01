@@ -3,5 +3,5 @@ export const environment = {
   fakeAPI: false,
   urlAPI: window.location.protocol + '//' + window.location.host + '/api/',
   wsAPI: (window.location.protocol == 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/api/',
-  version: 'release' // TODO Insert e.g. Git Hash here
+  version: 'release' // Do not change this value as the CI will try to replace it!
 };

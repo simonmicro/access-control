@@ -10,6 +10,10 @@ RUN poetry config virtualenvs.create false && poetry install --no-dev --no-inter
 COPY api/api /tmp/api
 RUN rm -r ./api; mv /tmp/api ./api
 
+# Now insert the current version from the build arguments
+ARG VERSION=unknown
+RUN echo $VERSION > /VERSION
+
 ENV PYTHONUNBUFFERED=1
 ENV CONFIG_PATH=/config.yml
 ENV REDIS_HOST=127.0.0.1
