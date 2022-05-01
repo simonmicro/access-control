@@ -22,6 +22,7 @@ export interface APIProvision {
 }
 
 export interface APIVersionInfo {
+  healthy: boolean;
   version: string;
 }
 
@@ -298,7 +299,7 @@ export class APIService {
 
   async getVersionInfo(name: string): Promise<APIVersionInfo> {
     if(name === 'dashboard')
-      return {version: environment.version};
+      return {healthy: true, version: environment.version};
     return this.request('get', 'version/' + name);
   }
 

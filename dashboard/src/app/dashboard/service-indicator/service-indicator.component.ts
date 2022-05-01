@@ -17,7 +17,7 @@ export class ServiceIndicatorComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     try {
       this.info = await this.apiSvc.getVersionInfo(this.scope);
-      this.healthy = true;
+      this.healthy = this.info.healthy;
     } catch(e) {
       this.healthy = false;
     }

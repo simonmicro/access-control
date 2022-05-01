@@ -12,6 +12,10 @@ ENV PATH="/.local/bin:$PATH"
 COPY provision .
 RUN poetry config virtualenvs.create false && poetry install --no-dev --no-interaction --no-ansi
 
+# We are now fixing the symlink "api", as Docker does not resolve these
+COPY api/api /tmp/api
+RUN rm -r ./api; mv /tmp/api ./api
+
 ENV PYTHONUNBUFFERED=1
 ENV CONFIGMAP=nginx-config-geo-ips
 ENV PODSELECTOR=app=nginx

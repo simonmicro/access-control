@@ -10,6 +10,7 @@ import datetime
 import tempfile
 import ipaddress
 import subprocess
+import api.version
 
 # Parse args
 parser = argparse.ArgumentParser()
@@ -21,6 +22,8 @@ parser.add_argument('--configmap', type=str, required=True, help='Target configm
 parser.add_argument('--pod-selector', type=str, help='Which pods should be annotated on configmap updates? Use e.g. "app=nginx"')
 args = parser.parse_args()
 logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
+
+api.version.heartbeatMyVersion(args.redis_host, args.redis_port, 'provision')
 
 redisClient = redis.Redis(host=args.redis_host, port=args.redis_port, db=0, decode_responses=True)
 def setProvisionState(state: bool, id: str):
