@@ -19,6 +19,7 @@ export class DashboardComponent implements OnInit {
   globalIPs: APIIP[] = [];
   userIPsMax: number = 0;
   apiDocs: string = '';
+  openSideNav: boolean = false;
 
   constructor(private authSvc: AuthenticationService, public api: APIService, private dialog: MatDialog, private snackbar: MatSnackBar, private titleSvc: Title) {
     this.titleSvc.setTitle('Dashboard');
@@ -33,6 +34,9 @@ export class DashboardComponent implements OnInit {
     this.api.getIPs(false).then(l => this.userIPs = l);
     this.api.getIPs(true).then(l => this.globalIPs = l);
     this.apiDocs = this.api.getDocsURI();
+    // Open the sidenav if orientation is landscape
+    if(window.matchMedia("only screen and (orientation: landscape)").matches)
+      this.openSideNav = true;
   }
 
   ngOnDestroy(): void {

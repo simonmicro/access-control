@@ -12,7 +12,7 @@
 <mat-progress-bar *ngIf="api.loading" mode="indeterminate"></mat-progress-bar>
 
 <mat-drawer-container class="flex-expand">
-    <mat-drawer #drawer mode="side">
+    <mat-drawer #drawer mode="side" [opened]="openSideNav">
         <mat-nav-list>
             <p><a mat-list-item [href]="apiDocs" target="_blank"><mat-icon>api</mat-icon><span class="nav-icon-space"></span> API</a></p>
             <!--<a mat-list-item [routerLink]="'/path'">Dummy</a>-->
