@@ -18,7 +18,7 @@ users:
       - example
     keys: [] # In case a user needs fixed keys, you can add them here...
   user: # Is the username
-    name: USER
+    name: Development User
     password: 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8 # Very simple, use this: https://emn178.github.io/online-tools/sha256.html
     scopes: []
     keys: []
