@@ -7,7 +7,7 @@ general:
 scopes:
   example: # This will be used as filename (-> example.list)
     name: 'Example Scope'
-    url: 'example.com' # Used to determine scope based on return URL
+    url: 'https://example.com' # Used to determine scope based on return URL
 
 users:
   # Username "global" is reserved

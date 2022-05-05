@@ -53,3 +53,9 @@ mat-nav-list {
     margin: 0;
     padding: 0;
 }
+
+a.scope-list-element {
+    margin-left: 0.5em;
+    text-decoration: none;
+    color: grey;
+}

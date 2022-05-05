@@ -247,3 +247,18 @@ async def versionScope(service: str, token: str = Depends(oauth2_scheme)):
     else:
         version = api.version.getOtherVersion(app.state.redisClient, service)
         return VersionInfo(healthy=version is not None, version=version)
+
+@app.get("/scopes", summary='Retreive a list of scopes of the user', response_model=ScopeList)
+async def scopes(token: str = Depends(oauth2_scheme)):
+    authorize(token)
+    scopes = list()
+    for scopeId, scopeStr in app.state.redisClient.hgetall('scopes').items():
+        scopeData = json.loads(scopeStr)
+        if json.loads(app.state.redisClient.get('keys/' + token))['username'] not in scopeData['users']:
+            continue
+        scopes.append(Scope(
+            id=scopeId,
+            name=scopeData['name'],
+            url=scopeData['url']
+        ))
+    return ScopeList(scopes=scopes)

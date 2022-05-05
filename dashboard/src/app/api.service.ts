@@ -20,10 +20,14 @@ export interface APIProvision {
   state: boolean;
   since: Date | null;
 }
-
 export interface APIVersionInfo {
   healthy: boolean;
   version: string;
+}
+export interface APIScope {
+  id: string
+  name: string
+  url: URL
 }
 
 @Injectable({
@@ -277,6 +281,18 @@ export class APIService {
         expires: r.expires !== null ? new Date(r.expires) : null,
         added: new Date(r.added),
         ip: r.ip
+      });
+    return returnme;
+  }
+
+  async getScopes(): Promise<APIScope[]> {
+    let response = (await this.request('get', 'scopes'))!.scopes;
+    let returnme: APIScope[] = [];
+    for(let r of response)
+      returnme.push({
+        id: r.id,
+        name: r.name,
+        url: r.url
       });
     return returnme;
   }

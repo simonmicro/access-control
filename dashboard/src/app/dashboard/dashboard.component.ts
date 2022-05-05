@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../authentication.service';
 import { Subscription } from 'rxjs';
-import { APIUser, APIIP, APIService } from '../api.service';
+import { APIUser, APIIP, APIService, APIScope } from '../api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { IpAssistantComponent } from './ip-assistant/ip-assistant.component'
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -17,6 +17,7 @@ export class DashboardComponent implements OnInit {
   title?: string;
   userIPs: APIIP[] = [];
   globalIPs: APIIP[] = [];
+  userScopes: APIScope[] = [];
   userIPsMax: number = 0;
   apiDocs: string = '';
   openSideNav: boolean = false;
@@ -26,6 +27,11 @@ export class DashboardComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    // Configure sidebar
+    this.apiDocs = this.api.getDocsURI();
+    // Open the sidenav if orientation is landscape
+    if(window.matchMedia("only screen and (orientation: landscape)").matches)
+      this.openSideNav = true;
     // Bind title to user information
     this.userSubscription = this.authSvc.subscribeUser(u => { if(u) this.userUpdate(u); });
     let u: APIUser | null = await this.authSvc.getUser();
@@ -33,10 +39,7 @@ export class DashboardComponent implements OnInit {
     // Fill component data
     this.api.getIPs(false).then(l => this.userIPs = l);
     this.api.getIPs(true).then(l => this.globalIPs = l);
-    this.apiDocs = this.api.getDocsURI();
-    // Open the sidenav if orientation is landscape
-    if(window.matchMedia("only screen and (orientation: landscape)").matches)
-      this.openSideNav = true;
+    this.api.getScopes().then(s => this.userScopes = s);
   }
 
   ngOnDestroy(): void {

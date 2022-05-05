@@ -25,6 +25,8 @@
             <app-service-indicator scope="config" display="Configurator"></app-service-indicator>
             <app-service-indicator scope="provision" display="Provisionier"></app-service-indicator>
         </span>
+        <mat-divider></mat-divider>
+        <a *ngFor="let scope of userScopes" [href]="scope.url" class="mat-caption scope-list-element" target="_blank">{{ scope.name }}</a>
     </mat-drawer>
 
     <mat-drawer-content id="content">

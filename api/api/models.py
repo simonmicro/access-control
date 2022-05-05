@@ -33,3 +33,11 @@ class OAuth2Login(BaseModel):
 class VersionInfo(BaseModel):
     healthy: bool
     version: Optional[str]
+
+class Scope(BaseModel):
+    id: str
+    name: str
+    url: str
+
+class ScopeList(BaseModel):
+    scopes: List[Scope]
