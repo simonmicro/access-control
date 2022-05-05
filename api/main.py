@@ -113,15 +113,16 @@ async def ipAdd(ip: str, name: str, token: str = Depends(oauth2_scheme)):
     except RuntimeError:
         raise HTTPException(status_code=400, detail='Invalid IPv4')
     rejectReasons = list()
-    if parsedIP.is_private: rejectReasons.append('private')
     if parsedIP.is_reserved: rejectReasons.append('reserved')
     if parsedIP.is_loopback: rejectReasons.append('loopback')
     if parsedIP.is_link_local: rejectReasons.append('link_local')
     if parsedIP.is_multicast: rejectReasons.append('multicast')
-    if len(rejectReasons):
-        raise HTTPException(status_code=400, detail='IP prohibited: ' + ', '.join(rejectReasons))
     tokenInfo = json.loads(app.state.redisClient.get('keys/' + token))
     userInfo = json.loads(app.state.redisClient.hget('users', tokenInfo['username']))
+    if not userInfo['allow_private'] and parsedIP.is_private:
+        rejectReasons.append('private')
+    if len(rejectReasons):
+        raise HTTPException(status_code=400, detail='IP prohibited: ' + ', '.join(rejectReasons))
     if app.state.redisClient.hlen('ips/' + tokenInfo['username']) >= userInfo['ip_limit']:
         raise HTTPException(status_code=400, detail='IP would violate users IP limit')
     if app.state.redisClient.hget('ips/' + tokenInfo['username'], str(parsedIP)) is not None:

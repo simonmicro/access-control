@@ -48,6 +48,7 @@ def apply(redisHost: str, redisPort: int, yamlPath: str):
         r.hset('users', username, json.dumps({
             'name': userData['name'],
             'password': userData['password'],
+            'allow_private': userData['allowPrivate'] if 'allowPrivate' in userData else False,
             'ip_limit': general['ip_limit'],
             'expire_max': general['expire_max']
         }))

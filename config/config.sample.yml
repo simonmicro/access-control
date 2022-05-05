@@ -14,6 +14,7 @@ users:
   john: # Is the username
     name: John Doe
     password: 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8 # Very simple, use this: https://emn178.github.io/online-tools/sha256.html
+    allowPrivate: true # Useful if the user is also inside the lan-network of the server itself...
     scopes:
       - example
     keys: [] # In case a user needs fixed keys, you can add them here...
