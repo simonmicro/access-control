@@ -48,6 +48,10 @@ span.transparent-until-hover:hover {
     margin: 0.5em;
 }
 
+mat-divider {
+    margin: 1em 0;
+}
+
 mat-nav-list {
     /* Fix that strange alignment issue */
     margin: 0;
@@ -55,7 +59,8 @@ mat-nav-list {
 }
 
 a.scope-list-element {
-    margin-left: 0.5em;
+    display: block;
+    margin: 0 0.8rem;
     text-decoration: none;
     color: grey;
 }
