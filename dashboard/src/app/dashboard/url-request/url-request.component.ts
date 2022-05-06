@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { APIScope, APIService } from 'src/app/api.service';
+import { APIIP, APIScope, APIService } from 'src/app/api.service';
 
 export interface UrlRequestData {
   url: URL
@@ -14,7 +14,7 @@ export interface UrlRequestData {
 })
 export class UrlRequestComponent implements OnInit {
   statusOverallLoading: boolean = false;
-  statusList: Array<number> = [0, 0, 0, 0, 0];
+  statusList: Array<number> = [0, 0, 0, 0, 0, 0];
 
   constructor(private dialogRef: MatDialogRef<UrlRequestComponent>, private apiSvc: APIService, private snackbar: MatSnackBar, @Inject(MAT_DIALOG_DATA) public data: UrlRequestData) {
     this.dialogRef.disableClose = true;
@@ -63,32 +63,48 @@ export class UrlRequestComponent implements OnInit {
         throw 1;
       }
 
-      // TODO Register for provision update
-
-      // Add my ip
+      // Get added ips
+      let myIPs: APIIP[];
       try {
-        await this.apiSvc.addIP(myIP, 'Direct IP');
+        myIPs = await this.apiSvc.getIPs(false);
         this.setStatus(2, true);
       } catch(e) {
-        console.error(e);
-        this.snackbar.open('Something went wrong while adding your IP.', '', {duration: 10000});
         throw 2;
       }
 
-      // ...
-
-      /*
-      for(let i = 0; i < this.statusList.length; ++i) {
-        await new Promise((res, _) => {
-          setTimeout(res, 1000);
-        });
-        this.setStatus(i, false);
-        await new Promise((res, _) => {
-          setTimeout(res, 1000);
-        });
-        this.setStatus(i, true);
+      // Determine if we still need to add this ip...
+      let skipAddIP: boolean = false;
+      for(let ip of myIPs) {
+        if(ip.ip == myIP) {
+          skipAddIP = true;
+          break;
+        }
       }
-      */
+
+      try {
+        if(skipAddIP) {
+          // We are already done, so no waiting for the provision here!
+        } else {
+          // TODO Register for provision update
+
+          // Add my ip
+          await this.apiSvc.addIP(myIP, 'Direct IP');
+
+          // Now we have to wait for the provision to finish...
+          // TODO
+        }
+        this.setStatus(3, true);
+      } catch(e) {
+        console.error(e);
+        this.snackbar.open('Something went wrong while adding your IP.', '', {duration: 10000});
+        throw 3;
+      }
+
+      this.setStatus(4, true);
+
+      // Now we have to return the user to his original uri
+      // TODO
+      this.setStatus(5, false);
     } catch(e) {
       // @ts-ignore (TS tries to see a non-number here...)
       this.setStatus(e, false);
