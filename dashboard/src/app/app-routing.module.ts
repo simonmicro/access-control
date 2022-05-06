@@ -9,7 +9,9 @@ const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent, canActivate: [ AuthenticationGuard ] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [ AuthenticationGuard ] },
+  { path: 'request/:url', component: DashboardComponent, canActivate: [ AuthenticationGuard ] },
   { path: '**', component: Error404Component, canActivate: [ ] }
+  // localhost:4200/request/url?https:%2F%2Fgoogle.com=
 ];
 
 @NgModule({

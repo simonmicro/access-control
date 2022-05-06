@@ -1,0 +1,26 @@
+<span *ngIf="statusOverallLoading">
+    <mat-spinner class="statusOverall"></mat-spinner>
+    <br>
+</span>
+<table>
+    <tr>
+        <td><app-status-icon [status]="statusList[0]"></app-status-icon></td>
+        <td>Resolve request scope</td>
+    </tr>
+    <tr>
+        <td><app-status-icon [status]="statusList[1]"></app-status-icon></td>
+        <td>Retreive IP address</td>
+    </tr>
+    <tr>
+        <td><app-status-icon [status]="statusList[2]"></app-status-icon></td>
+        <td>Allow IP address</td>
+    </tr>
+    <tr>
+        <td><app-status-icon [status]="statusList[3]"></app-status-icon></td>
+        <td>Wait for provision</td>
+    </tr>
+    <tr>
+        <td><app-status-icon [status]="statusList[4]"></app-status-icon></td>
+        <td>Return to <a href="{{ data.url }}">site</a></td>
+    </tr>
+</table>

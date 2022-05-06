@@ -34,6 +34,8 @@ import { Error404Component } from './error404/error404.component';
 import { IpAssistantComponent } from './dashboard/ip-assistant/ip-assistant.component';
 import { ProvisionIndicatorComponent } from './dashboard/provision-indicator/provision-indicator.component';
 import { ServiceIndicatorComponent } from './dashboard/service-indicator/service-indicator.component';
+import { UrlRequestComponent } from './dashboard/url-request/url-request.component';
+import { StatusIconComponent } from './dashboard/url-request/status-icon/status-icon.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +48,9 @@ import { ServiceIndicatorComponent } from './dashboard/service-indicator/service
     Error404Component,
     IpAssistantComponent,
     ProvisionIndicatorComponent,
-    ServiceIndicatorComponent
+    ServiceIndicatorComponent,
+    UrlRequestComponent,
+    StatusIconComponent
   ],
   imports: [
     FormsModule,

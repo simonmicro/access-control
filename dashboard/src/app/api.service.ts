@@ -292,7 +292,7 @@ export class APIService {
       returnme.push({
         id: r.id,
         name: r.name,
-        url: r.url
+        url: new URL(r.url)
       });
     return returnme;
   }
