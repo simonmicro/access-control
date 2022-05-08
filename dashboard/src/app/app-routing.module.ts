@@ -11,7 +11,6 @@ const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [ AuthenticationGuard ] },
   { path: 'request/:url', component: DashboardComponent, canActivate: [ AuthenticationGuard ] },
   { path: '**', component: Error404Component, canActivate: [ ] }
-  // localhost:4200/request/url?https:%2F%2Fgoogle.com=
 ];
 
 @NgModule({
