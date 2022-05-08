@@ -233,7 +233,9 @@ export class APIService {
 
     // Validate given token and either keep it or throw it away...
     try {
-      await this.ownTokenInfo; // If it fails, we fail too!
+      if((await this.ownTokenInfo) === null) // If it fails, we fail too!
+        // Whoops, the token is invalid? Revoke it.
+        throw 'Token validation failed!';
       this.websocket = this.enableWebsocket();
       return true;
     } catch(e) {
