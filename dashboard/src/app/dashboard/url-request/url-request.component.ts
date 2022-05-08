@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit, Query } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import * as moment from 'moment';
 import { APIIP, APIScope, APIService } from 'src/app/api.service';
 
 export interface UrlRequestData {
@@ -85,6 +86,29 @@ export class UrlRequestComponent implements OnInit {
         let provisionSub = null;
         if (skipAddIP) {
           // We are already done, so no waiting for the provision here!
+          const keyExpire = 'url-redirect.expire';
+          const keyCount = 'url-redirect.count';
+          let expire = localStorage.getItem(keyExpire);
+          if(expire !== null && new Date(expire) < new Date()) {
+            localStorage.removeItem(keyExpire);
+            localStorage.removeItem(keyCount);
+          } else {
+            let count = localStorage.getItem('url-redirect.count');
+            if(count === null)
+              count = '0';
+            localStorage.setItem(keyCount, (Number.parseInt(count) + 1).toString());
+            if(Number.parseInt(count) > 3) {
+              // Are we stuck in a loop? If yes, show error!
+              this.snackbar.open(
+                'Whoops, seems like you are stuck in a loop (' + count + ')?! Please try again later or contact your administrator.' +
+                (expire ? ' Automatic redirect is disabled until ' + moment(expire).fromNow() + '. Sorry.' : ''),
+                'Accept', {duration: 0}
+              );
+              throw 'Loop detected!';
+            }
+            // Okay, increase rewrite count...
+            localStorage.setItem(keyExpire, new Date(new Date().getTime() + 300 * 1000).toISOString()); // 5 minute cooldown...
+          }
         } else {
           // Register for provision update
           provisionSub = new Promise<void>((resolve, reject) => {
@@ -98,7 +122,12 @@ export class UrlRequestComponent implements OnInit {
           });
 
           // Add my ip
-          await this.apiSvc.addIP(myIP, 'Direct IP');
+          try {
+            await this.apiSvc.addIP(myIP, 'Direct IP');
+          } catch(e) {
+            this.snackbar.open('Something went wrong while adding your IP.', '', { duration: 10000 });
+            throw e;
+          }
         }
         this.setStatus(3, true);
         // Now we have to wait for the provision to finish (if set)...
@@ -106,7 +135,6 @@ export class UrlRequestComponent implements OnInit {
           await provisionSub;
       } catch (e) {
         console.error(e);
-        this.snackbar.open('Something went wrong while adding your IP.', '', { duration: 10000 });
         throw 3;
       }
 
