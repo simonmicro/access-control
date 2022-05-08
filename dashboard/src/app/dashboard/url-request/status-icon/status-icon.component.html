@@ -1,0 +1,4 @@
+<span *ngIf="status === 0" class="material-icons">hourglass_empty</span>
+<mat-spinner *ngIf="status === 1" [diameter]="16"></mat-spinner>
+<span *ngIf="status === 2" class="material-icons">done</span>
+<span *ngIf="status === 3" class="material-icons">close</span>

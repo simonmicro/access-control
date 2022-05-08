@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { AuthenticationService } from '../authentication.service';
 import { Subscription } from 'rxjs';
 import { APIUser, APIIP, APIService, APIScope } from '../api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { IpAssistantComponent } from './ip-assistant/ip-assistant.component'
+import { UrlRequestComponent } from './url-request/url-request.component'
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Title } from '@angular/platform-browser';
 
@@ -14,6 +16,7 @@ import { Title } from '@angular/platform-browser';
 })
 export class DashboardComponent implements OnInit {
   private userSubscription?: Subscription;
+  private routeSub: any;
   title?: string;
   userIPs: APIIP[] = [];
   globalIPs: APIIP[] = [];
@@ -22,7 +25,7 @@ export class DashboardComponent implements OnInit {
   apiDocs: string = '';
   openSideNav: boolean = false;
 
-  constructor(private authSvc: AuthenticationService, public api: APIService, private dialog: MatDialog, private snackbar: MatSnackBar, private titleSvc: Title) {
+  constructor(private authSvc: AuthenticationService, public api: APIService, private dialog: MatDialog, private snackbar: MatSnackBar, private titleSvc: Title, private route: ActivatedRoute) {
     this.titleSvc.setTitle('Dashboard');
   }
 
@@ -32,6 +35,17 @@ export class DashboardComponent implements OnInit {
     // Open the sidenav if orientation is landscape
     if(window.matchMedia("only screen and (orientation: landscape)").matches)
       this.openSideNav = true;
+    // Retreive the URL for the request UI
+    this.routeSub = this.route.params.subscribe(params => {
+      try {
+        const u = new URL(params['url']);
+        const dialogRef = this.dialog.open(UrlRequestComponent, {
+          data: { url: u },
+        });
+      } catch(e) {
+        // Either the parameter is empty or invalid
+      }
+    });
     // Bind title to user information
     this.userSubscription = this.authSvc.subscribeUser(u => { if(u) this.userUpdate(u); });
     let u: APIUser | null = await this.authSvc.getUser();
@@ -44,6 +58,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.userSubscription!.unsubscribe();
+    this.routeSub!.unsubscribe();
   }
 
   private userUpdate(u: APIUser) {
