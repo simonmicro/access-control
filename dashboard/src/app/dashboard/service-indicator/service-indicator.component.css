@@ -41,6 +41,10 @@ div.healthIcon.healthy::before, div.healthIcon.healthy::after {
     background: limegreen;
 }
 
+div.healthIcon.loading::before, div.healthIcon.loading::after {
+    display: none;
+}
+
 @keyframes heartbeat {
     0% {
         opacity: 0.8;

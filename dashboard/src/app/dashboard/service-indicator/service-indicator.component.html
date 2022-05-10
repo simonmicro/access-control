@@ -1,4 +1,4 @@
-<div class="healthIcon" [ngClass]="{'healthy' : healthy === true, 'unhealthy' : healthy === false}">
+<div class="healthIcon" [ngClass]="{'healthy': healthy === true, 'unhealthy': healthy === false, 'loading': healthy === null}">
     <mat-spinner *ngIf="healthy === null" [diameter]="16"></mat-spinner>
 </div>
 <div class="healthText">
