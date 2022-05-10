@@ -1,4 +1,4 @@
-<table *ngIf="data.length > 0" mat-table [dataSource]="dataSource!" [ngClass]="{'read-only': ro}">
+<table *ngIf="data !== undefined && data.length > 0" mat-table [dataSource]="dataSource!" [ngClass]="{'read-only': ro}">
     <ng-container matColumnDef="position">
         <th mat-header-cell *matHeaderCellDef>Name</th>
         <td mat-cell *matCellDef="let element">{{element.name}}</td>
@@ -37,12 +37,12 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>
 
-<div *ngIf="data.length > 0" [ngClass]="{'hidden': !paginate}">
+<div *ngIf="data !== undefined && data.length > 0" [ngClass]="{'hidden': !paginate}">
     <mat-paginator [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons>
     </mat-paginator>
 </div>
 
-<div *ngIf="data.length == 0">
+<div *ngIf="data !== undefined && data.length == 0">
     <div class="big-icon-message">
         <mat-icon class="icon">query_stats</mat-icon>
         <div class="message">

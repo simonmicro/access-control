@@ -18,9 +18,9 @@ export class DashboardComponent implements OnInit {
   private userSubscription?: Subscription;
   private routeSub: any;
   title?: string;
-  userIPs: APIIP[] = [];
-  globalIPs: APIIP[] = [];
-  userScopes: APIScope[] = [];
+  userIPs?: APIIP[];
+  globalIPs?: APIIP[];
+  userScopes?: APIScope[];
   userIPsMax: number = 0;
   apiDocs: string = '';
   openSideNav: boolean = false;
@@ -77,8 +77,8 @@ export class DashboardComponent implements OnInit {
         return;
       try {
         let ip: APIIP = await this.api.addIP(o.ip, o.name);
-        this.userIPs.push(ip);
-        this.userIPs = [...this.userIPs]; // Trigger explicit change detection for Angular
+        this.userIPs!.push(ip);
+        this.userIPs = [...this.userIPs!]; // Trigger explicit change detection for Angular
       } catch(e: any) {
         console.warn(e);
         if(e.detail)
@@ -89,6 +89,6 @@ export class DashboardComponent implements OnInit {
 
   async deleteIP(ip: APIIP) {
     await this.api.deleteIP(ip.ip);
-    this.userIPs = this.userIPs.filter(v => { return v.ip != ip.ip; });
+    this.userIPs = this.userIPs!.filter(v => { return v.ip != ip.ip; });
   }
 }

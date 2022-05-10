@@ -16,7 +16,7 @@ export class IpTableComponent implements OnInit, OnChanges, AfterViewInit {
 
   @Input() ro: boolean = false;
   @Input() pageSize: number = 10;
-  @Input() data: APIIP[] = [];
+  @Input() data?: APIIP[];
 
   @Output() deleteEvents: EventEmitter<APIIP> = new EventEmitter<APIIP>();
 
@@ -31,9 +31,11 @@ export class IpTableComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   ngOnChanges(): void {
-    this.paginate = this.data.length > this.pageSize;
-    this.dataSource = new MatTableDataSource<APIIP>(this.data);
-    this.dataSource!.paginator = this.paginator;
+    if(this.data !== undefined) {
+      this.paginate = this.data.length > this.pageSize;
+      this.dataSource = new MatTableDataSource<APIIP>(this.data);
+      this.dataSource!.paginator = this.paginator;
+    }
   }
   
   ngAfterViewInit() {

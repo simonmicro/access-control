@@ -19,6 +19,7 @@
         </mat-nav-list>
         <mat-divider></mat-divider>
         <p class="sidenav-text">Scopes</p>
+        <mat-progress-bar *ngIf="userScopes === undefined" mode="indeterminate"></mat-progress-bar>
         <a *ngFor="let scope of userScopes" [href]="scope.url" class="mat-caption scope-list-element" target="_blank">{{ scope.name }}</a>
         <mat-divider></mat-divider>
         <span class="transparent-until-hover">
@@ -40,9 +41,10 @@
                         Your IP Addresses
                     </mat-panel-title>
                     <mat-panel-description>
-                        Using {{ userIPs.length }} out of {{ userIPsMax }} IP addresses
+                        Using {{ userIPs?.length }} out of {{ userIPsMax }} IP addresses
                     </mat-panel-description>
                 </mat-expansion-panel-header>
+                <mat-progress-bar *ngIf="userIPs === undefined" mode="indeterminate"></mat-progress-bar>
                 <app-ip-table [data]="userIPs" (deleteEvents)="deleteIP($event)"></app-ip-table>
             </mat-expansion-panel>
 
@@ -52,13 +54,14 @@
                         Global IP Addresses
                     </mat-panel-title>
                 </mat-expansion-panel-header>
+                <mat-progress-bar *ngIf="userIPs === undefined" mode="indeterminate"></mat-progress-bar>
                 <app-ip-table [data]="globalIPs" [ro]="true"></app-ip-table>
             </mat-expansion-panel>
         </mat-accordion>
 
         <span class="flex-expand"></span>
 
-        <button id="addbtn" mat-fab *ngIf="userIPs.length < userIPsMax" (click)="openIPAssistant()">
+        <button id="addbtn" mat-fab *ngIf="userIPs !== undefined && userIPs.length < userIPsMax" (click)="openIPAssistant()">
             <mat-icon>add</mat-icon>
         </button>
     </mat-drawer-content>
