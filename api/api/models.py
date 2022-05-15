@@ -19,7 +19,7 @@ class UserInfo(BaseModel):
 
 class TokenInfo(BaseModel):
     user: UserInfo
-    expire: datetime.datetime
+    expire: Optional[datetime.datetime]
 
 class ProvisionInfo(BaseModel):
     id: str
