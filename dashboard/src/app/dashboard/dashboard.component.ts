@@ -38,8 +38,8 @@ export class DashboardComponent implements OnInit {
     // Retreive the URL for the request UI
     this.routeSub = this.route.params.subscribe(params => {
       try {
-        const u = new URL(params['url']);
-        const dialogRef = this.dialog.open(UrlRequestComponent, {
+        const u = new URL(decodeURIComponent(params['url']));
+        this.dialog.open(UrlRequestComponent, {
           data: { url: u },
         });
       } catch(e) {
