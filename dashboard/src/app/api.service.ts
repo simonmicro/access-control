@@ -7,7 +7,7 @@ export interface APIUser {
   limit: number
 }
 export interface APITokenInfo {
-  expires: Date,
+  expires: Date | null,
   user: APIUser
 }
 export interface APIIP {
@@ -138,6 +138,7 @@ export class APIService {
   }
 
   private async validateOwnToken(): Promise<APITokenInfo | null> {
+    this.disableWebsocket(); // Close the current websocket as the token changed
     // ALWAYS assign the return of this function to this.ownTokenInfo!!!
     let tokenInfo: APITokenInfo | null;
     try {
@@ -150,8 +151,10 @@ export class APIService {
           this.ownTokenInfo = this.validateOwnToken();
         }, 60 * 1000);
       }
+      this.websocket = this.enableWebsocket();
     } catch(e) {
       tokenInfo = null;
+      this.disableWebsocket();
     }
     this.ownTokenEventEmitter.emit(tokenInfo);
     return tokenInfo;
@@ -228,7 +231,6 @@ export class APIService {
     }
 
     // Real (invalid?) token set, validate it!
-    this.disableWebsocket();
     this.ownTokenInfo = this.validateOwnToken();
 
     // Validate given token and either keep it or throw it away...
@@ -236,7 +238,6 @@ export class APIService {
       if((await this.ownTokenInfo) === null) // If it fails, we fail too!
         // Whoops, the token is invalid? Revoke it.
         throw 'Token validation failed!';
-      this.websocket = this.enableWebsocket();
       return true;
     } catch(e) {
       // Something is wrong with the token. Remove it!
