@@ -4,6 +4,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background: url('../../assets/geometric-5969508.svg');
+    background-size: cover;
 }
 
 :host > div > mat-card > a {
@@ -11,5 +13,6 @@
 }
 
 :host > div > mat-card > div > img {
-    box-shadow: lightgray 0 0 1em;
+    width: 16em;
+    height: 9em;
 }
