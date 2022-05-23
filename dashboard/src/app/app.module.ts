@@ -36,6 +36,7 @@ import { ProvisionIndicatorComponent } from './dashboard/provision-indicator/pro
 import { ServiceIndicatorComponent } from './dashboard/service-indicator/service-indicator.component';
 import { UrlRequestComponent } from './dashboard/url-request/url-request.component';
 import { StatusIconComponent } from './dashboard/url-request/status-icon/status-icon.component';
+import { TooManyRequestsComponent } from './too-many-requests/too-many-requests.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import { StatusIconComponent } from './dashboard/url-request/status-icon/status-
     ProvisionIndicatorComponent,
     ServiceIndicatorComponent,
     UrlRequestComponent,
-    StatusIconComponent
+    StatusIconComponent,
+    TooManyRequestsComponent
   ],
   imports: [
     FormsModule,

@@ -1,6 +1,8 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { environment } from '../environments/environment';
+import { MatDialog } from '@angular/material/dialog';
+import { TooManyRequestsComponent } from './too-many-requests/too-many-requests.component'
 
 export interface APIUser {
   name: string
@@ -47,7 +49,7 @@ export class APIService {
   private provisionEventEmitter: EventEmitter<APIProvision | null> = new EventEmitter();
   public loading: boolean = false;
 
-  constructor() {
+  constructor(private dialog: MatDialog) {
     // Try to load last valid token from localStorage
     this.ownTokenInfo = null; // Will be set explicitly with the next calls
     if(localStorage.getItem(this.storageKeyName) !== null)
@@ -103,8 +105,11 @@ export class APIService {
     const json = resp.json();
     if(resp.ok)
       return json;
-    else
+    else {
+      if(resp.status == 429)
+        this.dialog.open(TooManyRequestsComponent);
       throw await json;
+    }
   }
 
   private async request(method: string, operator: string, params: any | null = null, data: any | null = null, background: boolean = false): Promise<any | null> {

@@ -1,0 +1,6 @@
+<h1 class="mat-h1">Whooha!</h1>
+
+<p>Hold your horses! The API reported a good old "429 Too Many Requests", which means that you are a little bit too tenacious... Please try again later or contact your administrator if the problem persist (even after letting some time pass).</p>
+
+<span class="mat-display-1" *ngIf="getAmount() > 16">HOLY SH*T! STOP IT. COME BACK LATER!</span>
+<span class="mat-caption" *ngIf="getAmount() > 16"> ({{ getAmount() }})</span>
