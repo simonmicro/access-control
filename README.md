@@ -133,6 +133,9 @@ server {
             root /success;
         }
         if ($dummy_list != 1) {
+            # You can also use the "rewrite" instead of the "root" (or whatever) statement to directly send the user to the access-control webinterface.
+            # Make sure to insert the external reachible hostname below!
+            # rewrite ^ $scheme://EXTERNAL_HOSTNAME_OF_INTERFACE/request/$scheme/$host$uri$is_args$args redirect;
             root /failure;
         }
     }
