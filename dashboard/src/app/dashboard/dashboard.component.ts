@@ -52,6 +52,7 @@ export class DashboardComponent implements OnInit {
     this.userSubscription = this.authSvc.subscribeUser(u => { if(u) this.userUpdate(u); });
     let u: APIUser | null = await this.authSvc.getUser();
     if(u) this.userUpdate(u);
+    this.api.getScopes().then(s => this.userScopes = s); // This is similar to the user information very static, so we do not update it frequently using the updateContent() method
     // Fill component data
     this.updateContent();
     this.contentSubcription = this.api.subscribeToProvision((state: APIProvision) => {
@@ -70,7 +71,6 @@ export class DashboardComponent implements OnInit {
   private updateContent(): void {
     this.api.getIPs(false).then(l => this.userIPs = l);
     this.api.getIPs(true).then(l => this.globalIPs = l);
-    this.api.getScopes().then(s => this.userScopes = s);
   }
 
   private userUpdate(u: APIUser) {
