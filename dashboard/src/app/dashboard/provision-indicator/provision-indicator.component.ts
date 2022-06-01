@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as moment from 'moment';
-import { APIService } from 'src/app/api.service';
+import { Subscription } from 'rxjs';
+import { APIProvision, APIService } from 'src/app/api.service';
 
 @Component({
   selector: 'app-provision-indicator',
@@ -8,6 +9,7 @@ import { APIService } from 'src/app/api.service';
   styleUrls: ['./provision-indicator.component.css']
 })
 export class ProvisionIndicatorComponent implements OnInit {
+  private subscription: Subscription | null = null;
   moment = moment;
   since: Date = new Date();
   active: boolean = false;
@@ -15,12 +17,17 @@ export class ProvisionIndicatorComponent implements OnInit {
   constructor(private api: APIService) { }
 
   ngOnInit(): void {
-    this.api.subscribeToProvision(state => {
+    this.subscription = this.api.subscribeToProvision((state: APIProvision) => {
       this.active = state.state;
-      this.since = state.since;
+      if(state.since === null)
+        this.since = new Date();
+      else
+        this.since = state.since;
     });
   }
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {
+    this.subscription?.unsubscribe();
+  }
 
 }

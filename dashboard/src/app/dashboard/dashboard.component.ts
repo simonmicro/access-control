@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AuthenticationService } from '../authentication.service';
 import { Subscription } from 'rxjs';
-import { APIUser, APIIP, APIService, APIScope } from '../api.service';
+import { APIUser, APIIP, APIService, APIScope, APIProvision } from '../api.service';
 import { MatDialog } from '@angular/material/dialog';
 import { IpAssistantComponent } from './ip-assistant/ip-assistant.component'
 import { UrlRequestComponent } from './url-request/url-request.component'
@@ -15,8 +15,9 @@ import { Title } from '@angular/platform-browser';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  private userSubscription?: Subscription;
-  private routeSub: any;
+  private userSubscription: Subscription | null = null;
+  private routeSubcription: Subscription | null = null;
+  private contentSubcription: Subscription | null = null;
   title?: string;
   userIPs?: APIIP[];
   globalIPs?: APIIP[];
@@ -36,7 +37,7 @@ export class DashboardComponent implements OnInit {
     if(window.matchMedia("only screen and (orientation: landscape)").matches)
       this.openSideNav = true;
     // Retreive the URL for the request UI
-    this.routeSub = this.route.params.subscribe(params => {
+    this.routeSubcription = this.route.params.subscribe(params => {
       try {
         const u = new URL(params['url']);
         u.search = window.location.search; // Patch in the current windows query parameters to pass on
@@ -52,14 +53,23 @@ export class DashboardComponent implements OnInit {
     let u: APIUser | null = await this.authSvc.getUser();
     if(u) this.userUpdate(u);
     // Fill component data
-    this.api.getIPs(false).then(l => this.userIPs = l);
-    this.api.getIPs(true).then(l => this.globalIPs = l);
-    this.api.getScopes().then(s => this.userScopes = s);
+    this.updateContent();
+    this.contentSubcription = this.api.subscribeToProvision((state: APIProvision) => {
+      if(state.state)
+        this.updateContent();
+    });
   }
 
   ngOnDestroy(): void {
-    this.userSubscription!.unsubscribe();
-    this.routeSub!.unsubscribe();
+    this.userSubscription?.unsubscribe();
+    this.routeSubcription?.unsubscribe();
+    this.contentSubcription?.unsubscribe();
+  }
+
+  private updateContent(): void {
+    this.api.getIPs(false).then(l => this.userIPs = l);
+    this.api.getIPs(true).then(l => this.globalIPs = l);
+    this.api.getScopes().then(s => this.userScopes = s);
   }
 
   private userUpdate(u: APIUser) {
