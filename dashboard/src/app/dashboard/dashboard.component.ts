@@ -55,7 +55,8 @@ export class DashboardComponent implements OnInit {
     // Fill component data
     this.updateContent();
     this.contentSubcription = this.api.subscribeToProvision((state: APIProvision) => {
-      if(state.state)
+      // TODO This should be handled using a dedicated message using the websocket from the API, so we must nevery refresh if no new data is there
+      if(!state.state)
         this.updateContent();
     });
   }

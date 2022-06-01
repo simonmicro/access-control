@@ -191,13 +191,6 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
         return
     websocketId = random.randint(100000, 999999)
     logger.info(f'Websocket {websocketId} connected.')
-    # Send initial state
-    s = api.provision.getProvisionState(app.state.redisClient)
-    await websocket.send_json({
-        'id': s.id,
-        'state': s.state,
-        'since': str(s.since)
-    })
     # Send updates
     sub = app.state.redisClient.pubsub(ignore_subscribe_messages=True)
     sub.subscribe('provision/state')

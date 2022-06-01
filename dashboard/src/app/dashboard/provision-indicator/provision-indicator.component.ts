@@ -18,12 +18,17 @@ export class ProvisionIndicatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.subscription = this.api.subscribeToProvision((state: APIProvision) => {
-      this.active = state.state;
-      if(state.since === null)
-        this.since = new Date();
-      else
-        this.since = state.since;
+      this.update(state);
     });
+    this.api.getProvision().then(state => this.update(state));
+  }
+
+  private update(state: APIProvision): void {
+    this.active = state.state;
+    if(state.since === null)
+      this.since = new Date();
+    else
+      this.since = state.since;
   }
 
   ngOnDestroy(): void {
