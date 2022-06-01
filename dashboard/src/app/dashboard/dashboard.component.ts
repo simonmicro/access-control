@@ -38,7 +38,8 @@ export class DashboardComponent implements OnInit {
     // Retreive the URL for the request UI
     this.routeSub = this.route.params.subscribe(params => {
       try {
-        const u = new URL(decodeURIComponent(params['url']));
+        const u = new URL(params['url']);
+        u.search = window.location.search; // Patch in the current windows query parameters to pass on
         this.dialog.open(UrlRequestComponent, {
           data: { url: u },
         });
