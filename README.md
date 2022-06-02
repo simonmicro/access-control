@@ -50,7 +50,7 @@ server {
         resolver kube-dns.kube-system.svc.cluster.local;
         proxy_pass http://api-service.default.svc.cluster.local$uri$is_args$args;
         # Limit interaction to the API
-        limit_req zone=access_api_limit burst=32 delay;
+        limit_req zone=access_api_limit burst=32 delay=8;
         limit_req_status 429;
         # Inform target host about proxy client...
         proxy_set_header Host $host;
