@@ -29,7 +29,7 @@ You then have to expose the `dashboard` and `api` services to the _users_ by e.g
 **Rate limits** are strongly recommended to add an additional layer of security to your api endpoint! Here is an example for a Nginx configuration of the `dashboard` with the `api` service mapped to `/api`:
 
 ```nginx
-limit_req_zone $binary_remote_addr zone=access_api_limit:10m rate=24r/m;
+limit_req_zone $binary_remote_addr zone=access_api_limit:10m rate=4r/s;
 
 server {
     listen 443 ssl;
@@ -50,7 +50,7 @@ server {
         resolver kube-dns.kube-system.svc.cluster.local;
         proxy_pass http://api-service.default.svc.cluster.local$uri$is_args$args;
         # Limit interaction to the API
-        limit_req zone=access_api_limit burst=32 nodelay;
+        limit_req zone=access_api_limit burst=32 delay;
         limit_req_status 429;
         # Inform target host about proxy client...
         proxy_set_header Host $host;

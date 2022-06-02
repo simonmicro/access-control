@@ -177,7 +177,8 @@ export class APIService {
     if(!force) {
       if(this.websocket !== null)
         return this.websocket;
-      console.debug('Websocket enabled');
+      if(!environment.production)
+        console.debug('Websocket enabled');
     }
     let s = new WebSocket(environment.wsAPI + 'ws?token=' + this.ownToken);
     s.onopen = evt => {
@@ -213,7 +214,8 @@ export class APIService {
   private disableWebsocket(): void {
     if(this.websocket === null)
       return;
-    console.debug('Websocket disabled');
+    if(!environment.production)
+      console.debug('Websocket disabled');
     let s = this.websocket; // First remove the ref, then close - otherwise onclose() will reconnect
     this.websocket = null;
     s?.close();
