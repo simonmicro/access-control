@@ -130,13 +130,20 @@ server {
 
     location / {
         if ($dummy_list = 1) {
-            root /success;
+            # root /success;
+            # ...or use inline HTML...
+            add_header Content-Type text/html;
+            return 200 '<html><body><h1>Access granted!</h1></body></html>';
         }
         if ($dummy_list != 1) {
             # You can also use the "rewrite" instead of the "root" (or whatever) statement to directly send the user to the access-control webinterface.
             # Make sure to insert the external reachible hostname below!
             # rewrite ^ $scheme://EXTERNAL_HOSTNAME_OF_INTERFACE/request/$scheme/$host$uri$is_args$args redirect;
-            root /failure;
+
+            # root /failure;
+            # ...or use inline HTML...
+            add_header Content-Type text/html;
+            return 403 '<html><body><h1>Access denied!</h1></body></html>';
         }
     }
 }
