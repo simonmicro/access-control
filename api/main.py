@@ -161,13 +161,16 @@ async def ipEdit(ip: ipaddress.IPv4Address, newName: str = None, newIP: str = No
             raise HTTPException(status_code=400, detail='IP prohibited: ' + ', '.join(rejectReasons))
         if app.state.redisClient.hget('ips/' + tokenInfo['username'], str(parsedIP)) is not None:
             raise HTTPException(status_code=400, detail='Duplicate IP')
-    if newName is None and newIP is None:
-        raise HTTPException(status_code=304, detail='No change')
     # Fetch current IP
     currentIPStr = app.state.redisClient.hget('ips/' + tokenInfo['username'], str(ip))
     if currentIPStr is None:
         raise HTTPException(status_code=400, detail='IP not found')
     currentIPData = json.loads(currentIPStr)
+    # Check if any modification was made
+    if newName is not None and newName == currentIPData['name']:
+        newName = None
+    if newIP is not None and parsedIP == ip:
+        newIP = None
     timeout = datetime.timedelta(seconds=userInfo['expire_max'])
     currentIP = IP(
         name=newName if newName is not None else currentIPData['name'],
@@ -175,6 +178,8 @@ async def ipEdit(ip: ipaddress.IPv4Address, newName: str = None, newIP: str = No
         added=datetime.datetime.fromisoformat(currentIPData['added']),
         expires=datetime.datetime.now(datetime.timezone.utc) + timeout
     )
+    if newName is None and newIP is None:
+        raise HTTPException(status_code=304, detail='No change')
     # Save back and update it accordingly
     if newIP is not None:
         app.state.redisClient.hdel('ips/' + tokenInfo['username'], str(ip))
