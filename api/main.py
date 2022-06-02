@@ -106,21 +106,17 @@ async def tokenDelete(token: str = Depends(oauth2_scheme)):
 @app.post("/ip/add", tags=[Tags.ips], summary='Add a new IPv4', response_model=IP)
 async def ipAdd(ip: str, name: str, token: str = Depends(oauth2_scheme)):
     authorize(token)
-    if len(name) < 4 or len(name) > 32:
+    try:
+        api.utils.validateIPName(name)
+    except RuntimeError:
         raise HTTPException(status_code=400, detail='Invalid name')
     try:
         parsedIP = api.utils.validateIPv4(ip)
     except RuntimeError:
         raise HTTPException(status_code=400, detail='Invalid IPv4')
-    rejectReasons = list()
-    if parsedIP.is_reserved: rejectReasons.append('reserved')
-    if parsedIP.is_loopback: rejectReasons.append('loopback')
-    if parsedIP.is_link_local: rejectReasons.append('link_local')
-    if parsedIP.is_multicast: rejectReasons.append('multicast')
     tokenInfo = json.loads(app.state.redisClient.get('keys/' + token))
     userInfo = json.loads(app.state.redisClient.hget('users', tokenInfo['username']))
-    if not userInfo['allow_private'] and parsedIP.is_private:
-        rejectReasons.append('private')
+    rejectReasons = api.utils.rejectIPv4(parsedIP, userInfo['allow_private'])
     if len(rejectReasons):
         raise HTTPException(status_code=400, detail='IP prohibited: ' + ', '.join(rejectReasons))
     if app.state.redisClient.hlen('ips/' + tokenInfo['username']) >= userInfo['ip_limit']:
@@ -144,6 +140,61 @@ async def ipAdd(ip: str, name: str, token: str = Depends(oauth2_scheme)):
         expires=expires
     )
 
+@app.post("/ip/edit", tags=[Tags.ips], summary='Edit an IPv4', response_model=IP)
+async def ipEdit(ip: ipaddress.IPv4Address, newName: str = None, newIP: str = None, token: str = Depends(oauth2_scheme)):
+    authorize(token)
+    # Validate new values
+    if newName is not None:
+        try:
+            api.utils.validateIPName(newName)
+        except RuntimeError:
+            raise HTTPException(status_code=400, detail='Invalid name')
+    tokenInfo = json.loads(app.state.redisClient.get('keys/' + token))
+    userInfo = json.loads(app.state.redisClient.hget('users', tokenInfo['username']))
+    if newIP is not None:
+        try:
+            parsedIP = api.utils.validateIPv4(newIP)
+        except RuntimeError:
+            raise HTTPException(status_code=400, detail='Invalid IPv4')
+        rejectReasons = api.utils.rejectIPv4(parsedIP, userInfo['allow_private'])
+        if len(rejectReasons):
+            raise HTTPException(status_code=400, detail='IP prohibited: ' + ', '.join(rejectReasons))
+        if app.state.redisClient.hget('ips/' + tokenInfo['username'], str(parsedIP)) is not None:
+            raise HTTPException(status_code=400, detail='Duplicate IP')
+    if newName is None and newIP is None:
+        raise HTTPException(status_code=304, detail='No change')
+    # Fetch current IP
+    currentIPStr = app.state.redisClient.hget('ips/' + tokenInfo['username'], str(ip))
+    if currentIPStr is None:
+        raise HTTPException(status_code=400, detail='IP not found')
+    currentIPData = json.loads(currentIPStr)
+    timeout = datetime.timedelta(seconds=userInfo['expire_max'])
+    currentIP = IP(
+        name=newName if newName is not None else currentIPData['name'],
+        ip=parsedIP if newIP is not None else ip,
+        added=datetime.datetime.fromisoformat(currentIPData['added']),
+        expires=datetime.datetime.now(datetime.timezone.utc) + timeout
+    )
+    # Save back and update it accordingly
+    if newIP is not None:
+        app.state.redisClient.hdel('ips/' + tokenInfo['username'], str(ip))
+    app.state.redisClient.hset('ips/' + tokenInfo['username'], str(parsedIP if newIP is not None else ip), json.dumps({
+        'name': currentIP.name,
+        'added': str(currentIP.added),
+        'expire': str(currentIP.expires)
+    }))
+    app.state.redisClient.expire('ips/' + tokenInfo['username'], timeout) # We know our updated key will be the newest (with latest expire)
+    api.provision.requestProvision(app.state.redisClient)
+    return currentIP
+
+@app.delete("/ip/delete", tags=[Tags.ips], summary='Delete an IPv4')
+async def ipDelete(ip: ipaddress.IPv4Address, token: str = Depends(oauth2_scheme)):
+    authorize(token)
+    tokenInfo = json.loads(app.state.redisClient.get('keys/' + token))
+    if app.state.redisClient.hdel('ips/' + tokenInfo['username'], str(ip)) == 0:
+        raise HTTPException(status_code=404, detail='IP not found')
+    api.provision.requestProvision(app.state.redisClient)
+
 @app.get("/ip/list", tags=[Tags.ips], summary='Get the global or personal IPv4 list', response_model=IPList)
 async def ipList(globals: bool = False, token: str = Depends(oauth2_scheme)):
     authorize(token)
@@ -160,14 +211,6 @@ async def ipList(globals: bool = False, token: str = Depends(oauth2_scheme)):
             expires=ipData['expire']
         ))
     return IPList(globals=globals, ips=ips)
-
-@app.delete("/ip/delete", tags=[Tags.ips], summary='Delete an IPv4')
-async def ipDelete(ip: ipaddress.IPv4Address, token: str = Depends(oauth2_scheme)):
-    authorize(token)
-    tokenInfo = json.loads(app.state.redisClient.get('keys/' + token))
-    if app.state.redisClient.hdel('ips/' + tokenInfo['username'], str(ip)) == 0:
-        raise HTTPException(status_code=404, detail='IP not found')
-    api.provision.requestProvision(app.state.redisClient)
 
 @app.get("/ip/public", tags=[Tags.ips], summary='Retreive your IPv4 visible to the server', response_model=ipaddress.IPv4Address)
 async def ipPublic(request: Request, token: str = Depends(oauth2_scheme)):
