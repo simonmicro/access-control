@@ -52,7 +52,18 @@ export class DashboardComponent implements OnInit {
     this.userSubscription = this.authSvc.subscribeUser(u => { if(u) this.userUpdate(u); });
     let u: APIUser | null = await this.authSvc.getUser();
     if(u) this.userUpdate(u);
-    this.api.getScopes().then(s => this.userScopes = s); // This is similar to the user information very static, so we do not update it frequently using the updateContent() method
+    
+    this.api.getScopes().then(s => {
+        // This is similar to the user information very static, so we do not update it frequently using the updateContent() method
+        s.sort((a, b): number => {
+          if (a.name < b.name)
+            return -1;
+          if (a.name > b.name)
+            return 1;
+          return 0;
+        });
+        this.userScopes = s;
+      }); 
     // Fill component data
     this.updateContent();
     this.contentSubcription = this.api.subscribeToProvision((state: APIProvision) => {
