@@ -93,7 +93,7 @@ export class UrlRequestComponent implements OnInit {
             localStorage.removeItem(keyExpire);
             localStorage.removeItem(keyCount);
           } else {
-            let count = localStorage.getItem('url-redirect.count');
+            let count = localStorage.getItem(keyCount);
             if(count === null)
               count = '0';
             localStorage.setItem(keyCount, (Number.parseInt(count) + 1).toString());
@@ -139,6 +139,21 @@ export class UrlRequestComponent implements OnInit {
       }
 
       this.setStatus(4, true);
+
+      // Potential cooldown, in case the user returned too fast
+      const keyLast = 'url-redirect.last';
+      const lastTimeHere = localStorage.getItem(keyLast);
+      if(lastTimeHere !== null) {
+        const nowTime = new Date().getTime();
+        const lastTime = new Date(lastTimeHere).getTime();
+        const diffTime = nowTime - lastTime;
+        const minTime = 10 * 1000; // If last redirect is less than 10 seconds ago, wait so the difference
+        if(diffTime < minTime)
+          await new Promise((resolve, reject) => {
+            setTimeout(resolve, minTime - diffTime);
+          });
+      }
+      localStorage.setItem(keyLast, new Date().toISOString())
 
       // Now we have to return the user to his original uri
       window.location.href = this.data.url.toString();
