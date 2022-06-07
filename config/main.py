@@ -1,4 +1,5 @@
 import os
+import time
 import redis
 import logging
 import argparse
@@ -43,6 +44,7 @@ cooldown = datetime.datetime.now(datetime.timezone.utc)
 while True:
     for event in inotify.read():
         if datetime.datetime.now(datetime.timezone.utc) > cooldown:
+            time.sleep(1) # Sometimes we are reading a file, which is not even written yet - so lets wait a bit...
             api.config.apply(args.redis_host, args.redis_port, args.config)
             debugDatabaseDump()
         cooldown = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=2)
