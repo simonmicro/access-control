@@ -140,7 +140,7 @@ async def ipAdd(ip: str, name: str, token: str = Depends(oauth2_scheme)):
         expires=expires
     )
 
-@app.post("/ip/edit", tags=[Tags.ips], summary='Edit an IPv4', response_model=IP)
+@app.patch("/ip/edit", tags=[Tags.ips], summary='Edit an IPv4', response_model=IP)
 async def ipEdit(ip: ipaddress.IPv4Address, newName: str = None, newIP: str = None, token: str = Depends(oauth2_scheme)):
     authorize(token)
     # Validate new values
