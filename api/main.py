@@ -303,3 +303,13 @@ async def scopes(token: str = Depends(oauth2_scheme)):
             url=scopeData['url']
         ))
     return ScopeList(scopes=scopes)
+
+@app.get("/_healthcheck", summary='Check if endpoint is reachible', include_in_schema=False)
+async def scopes():
+    if app.state.redisClient is None:
+        raise HTTPException(status_code=503, detail='Startup incomplete')
+    try:
+        print(app.state.redisClient.client_info())
+    except:
+        raise HTTPException(status_code=503, detail='Redis not connected')
+    return 'OK'
