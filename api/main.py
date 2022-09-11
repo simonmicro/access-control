@@ -37,7 +37,7 @@ tagsMetadata = [
 ]
 app = FastAPI(
     title='Access Control API',
-    #description='_ToDo_...',
+    description='This software is used as access control for some applications. This API is also used by the front-end, so you can be sure to find all actions from there also here.',
     version='0.0.1',
     redoc_url=None,
     openapi_tags=tagsMetadata,

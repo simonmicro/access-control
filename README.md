@@ -1,9 +1,11 @@
 # What is this?
-_TODO_
-* Developed for Kubernetes clusters
-* Perfect? No - only meant for additional security; best for "small" amount of _users_
-* Works by whitelisting _users_ public IPv4 for a set of _scopes_ (like `stuff.example.com`) by providing a list of ips for the use in configmaps inside Nginx
-* Use this command to reload Nginx on the fly: `TODO`
+
+![login](docs/img/login.png)
+![dashboard](docs/img/dash.png)
+
+This application was developed to work inside a cloud-native environment (Kubernetes!) and to protect its web-applications with an additional layer of security.
+
+There is no need for e.g. a VPN-client on the _users_ side, instead their requests will simply be rewritten to the authentication layer of this software. This solution is not perfect and only meant as an additional of security: It works by whitelisting _users_ public IPv4 for a set of _scopes_ (like `stuff.example.com`) by providing a list of IPv4-addresses for the use inside configmaps (e.g. for use inside Nginx). It therfore works best for "small" amount of _users_ only.
 
 ## Services
 * `api` Provides a REST-ful endpoint with WebSockets and documentation
@@ -14,7 +16,7 @@ _TODO_
 ## Getting started
 
 ### API, Dashboard & more
-All services (except the `dashboard`) need access to a Redis database instance. To run such instance locally, try this (after its [documentation](https://hub.docker.com/_/redis)):
+All services (except the `dashboard`) need access to a Redis database instance. To run such instance locally, try this (according to its [documentation](https://hub.docker.com/_/redis)):
 
 ```bash
 docker run -v "$(pwd)/redis:/data" -p 6379:6379 redis redis-server --save 60 1 --loglevel warning

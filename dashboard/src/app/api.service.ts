@@ -57,7 +57,7 @@ export class APIService {
     else
       this.setOwnToken(null);
     // TODO While the "this.setOwnToken(...)" is fast, there is a very small chance that an
-    // other actor tries to get the answer to e.g. "hasOwnToken()"" - before the Promise was
+    // other actor tries to get the answer to e.g. "hasOwnToken()" - before the Promise was
     // set (resolve or reject is irrelevant). For now just "(this.ownTokenInfo!)" is used,
     // so the code crashes in case these calls happen too early.
   }
