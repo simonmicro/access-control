@@ -4,7 +4,7 @@
 FROM bitnami/kubectl
 # Use root, as we need to install poetry and all the packages - not the best during runtime, but this service is not exposed anyways...
 USER root
-RUN install_packages python3 python3-venv python3-pip
+RUN install_packages python3 python3-venv python3-pip curl
 RUN pip3 install -U setuptools pip
 WORKDIR /workspace
 RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.1.13
